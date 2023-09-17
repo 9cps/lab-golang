@@ -1,7 +1,7 @@
 # Lab-golang
 Golang APIs with Gin, GROM, PosgreSQL, OOP, MVC
 
-Start
+# Start
 // Build migrate schema sql
   go run migrate/migrateSchema.go
 
