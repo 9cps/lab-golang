@@ -5,3 +5,7 @@ type Friend struct {
 	L_NAME string `json:"l_name"`
 	TEL_NO string `json:"tel_no"`
 }
+
+type GetFriend struct {
+	KEYWORD string `json:"keyword"`
+}
