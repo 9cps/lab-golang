@@ -14,8 +14,14 @@ func init() {
 
 func main() {
 	r := gin.Default()
-	r.POST("/CreateFriend", controllers.CreateFriend)
-	r.POST("/GetFriend", controllers.GetFriend)
 
+	// HealtCheck
+	r.GET("/HealthCheckAPI", controllers.HealthCheckAPI)
+	r.GET("/HealthCheckDB", controllers.HealthCheckDB)
+
+	// Friends
+	r.PUT("/CreateFriend", controllers.CreateFriend)
+	r.POST("/GetFriend", controllers.GetFriend)
+	r.DELETE("/DeleteFriend/:id", controllers.DeleteFriend)
 	r.Run() // listen and serve on port .env
 }

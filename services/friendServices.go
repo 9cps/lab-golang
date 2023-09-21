@@ -9,7 +9,7 @@ import (
 
 func InsertFriend(c *gin.Context) models.Friend {
 	var req req_dtos.Friend
-	// Use c.ShouldBindJSON to bind the request body to the DTO
+	// Map req to model
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{
 			"error": "Bad request, invalid JSON data",
@@ -34,7 +34,7 @@ func InsertFriend(c *gin.Context) models.Friend {
 
 func FindFriend(c *gin.Context) []models.Friend {
 	var req req_dtos.GetFriend
-	// Use c.ShouldBindJSON to bind the request body to the DTO
+	// Map req to model
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{
 			"error": "Bad request, invalid JSON data",
@@ -64,4 +64,13 @@ func FindFriend(c *gin.Context) []models.Friend {
 	}
 
 	return friendData
+}
+
+func DeleteFriend(c *gin.Context) bool {
+	id := c.Param("id")
+
+	// Delete by id
+	initializers.DB.Delete(&models.Friend{}, id)
+
+	return true
 }
