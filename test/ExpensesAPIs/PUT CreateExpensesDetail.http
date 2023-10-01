@@ -1,0 +1,11 @@
+PUT http://localhost:3000/CreateExpensesDetail HTTP/1.1
+Content-Type: application/json
+//Authorization: token {{client_id}}
+Accept: application/json
+
+{
+    "ExpensesId": 3,
+    "ExpensesType": "FIXEDCOST",
+    "ExpensesDesc": "ค่าโทรศัพท์",
+    "ExpensesAmount": 426.93
+}

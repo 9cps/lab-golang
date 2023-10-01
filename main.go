@@ -19,9 +19,10 @@ func main() {
 	r.GET("/HealthCheckAPI", controllers.HealthCheckAPI)
 	r.GET("/HealthCheckDB", controllers.HealthCheckDB)
 
-	// Friends
-	r.PUT("/CreateFriend", controllers.CreateFriend)
-	r.POST("/GetFriend", controllers.GetFriend)
-	r.DELETE("/DeleteFriend/:id", controllers.DeleteFriend)
+	// Expenses
+	r.PUT("/CreateExpenses", controllers.CreateExpenses)
+	r.PUT("/CreateExpensesDetail", controllers.CreateExpensesDetail)
+	r.GET("/GetListMoneyCard", controllers.GetListMoneyCard)
+	// r.DELETE("/DeleteFriend/:id", controllers.DeleteFriend)
 	r.Run() // listen and serve on port .env
 }
