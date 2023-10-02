@@ -1,4 +1,4 @@
-GET http://localhost:3000/GetListMoneyCard HTTP/1.1
+GET http://localhost:8080/GetListMoneyCard HTTP/1.1
 Content-Type: application/json
 //Authorization: token {{client_id}}
 Accept: application/json
