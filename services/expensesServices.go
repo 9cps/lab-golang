@@ -121,7 +121,7 @@ func DeleteExpensesIfCountExceeds(c *gin.Context, threshold int64) bool {
 
 func GetListMoneyCard(c *gin.Context) []models.Expenses {
 	// SQL Query
-	rows, err := initializers.DB.Raw("SELECT * FROM expenses ORDER BY id ASC").Rows()
+	rows, err := initializers.DB.Raw("SELECT * FROM expenses ORDER BY expenses_month ASC").Rows()
 
 	// Check for errors
 	if err != nil {
