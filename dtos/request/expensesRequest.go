@@ -13,6 +13,6 @@ type ExpensesDetail struct {
 	ExpensesAmount float32 `json:"expensesAmount"`
 }
 
-type GetFriend struct {
-	Keyword string `json:"keyword"`
+type GetExpensesDetailById struct {
+	Id int `json:"id"`
 }

@@ -144,6 +144,40 @@ func GetListMoneyCard(c *gin.Context) []models.Expenses {
 	return expensesData
 }
 
+func GetListMoneyCardDetail(c *gin.Context) []models.ExpensesDetail {
+	var req req_dtos.GetExpensesDetailById
+	// Map req to model
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{
+			"error": "Bad request, invalid JSON data",
+		})
+		return []models.ExpensesDetail{} // Return an empty slice in case of error
+	}
+
+	// SQL Query
+	rows, err := initializers.DB.Raw("SELECT * FROM expenses_details WHERE expenses_id = ? ORDER BY created_at DESC", req.Id).Rows()
+
+	// Check for errors
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": "Failed to execute SQL query",
+		})
+		return []models.ExpensesDetail{} // Return an empty slice in case of error
+	}
+	defer rows.Close()
+
+	var expenses models.ExpensesDetail
+	var expensesData []models.ExpensesDetail
+
+	for rows.Next() {
+		// Scan the result into the friend struct
+		initializers.DB.ScanRows(rows, &expenses)
+		expensesData = append(expensesData, expenses)
+	}
+
+	return expensesData
+}
+
 // func FindFriend(c *gin.Context) []models.Friend {
 // 	var req req_dtos.GetFriend
 // 	// Map req to model

@@ -31,6 +31,7 @@ func main() {
 	r.PUT("/CreateExpenses", controllers.CreateExpenses)
 	r.PUT("/CreateExpensesDetail", controllers.CreateExpensesDetail)
 	r.GET("/GetListMoneyCard", controllers.GetListMoneyCard)
+	r.POST("/GetListMoneyCardDetail", controllers.GetListMoneyCardDetail)
 	// r.DELETE("/DeleteFriend/:id", controllers.DeleteFriend)
 	r.Run() // listen and serve on port .env
 }
