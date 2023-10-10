@@ -2,6 +2,7 @@ package services
 
 import (
 	req_dtos "github.com/9cps/api-go-gin/dtos/request"
+	res_dtos "github.com/9cps/api-go-gin/dtos/response"
 	"github.com/9cps/api-go-gin/initializers"
 	"github.com/9cps/api-go-gin/models"
 	"github.com/gin-gonic/gin"
@@ -119,7 +120,7 @@ func DeleteExpensesIfCountExceeds(c *gin.Context, threshold int64) bool {
 	return true
 }
 
-func GetListMoneyCard(c *gin.Context) []models.Expenses {
+func GetListMoneyCard(c *gin.Context) res_dtos.ExpensesCard {
 	// SQL Query
 	rows, err := initializers.DB.Raw("SELECT * FROM expenses ORDER BY expenses_month ASC").Rows()
 
@@ -128,20 +129,29 @@ func GetListMoneyCard(c *gin.Context) []models.Expenses {
 		c.JSON(400, gin.H{
 			"error": "Failed to execute SQL query",
 		})
-		return []models.Expenses{} // Return an empty slice in case of error
+		return res_dtos.ExpensesCard{} // Return an empty slice in case of error
 	}
 	defer rows.Close()
 
-	var expenses models.Expenses
-	var expensesData []models.Expenses
+	var expensesData []res_dtos.Expenses
 
+	sumBalance := float32(0)
 	for rows.Next() {
+		var expenses res_dtos.Expenses
 		// Scan the result into the friend struct
 		initializers.DB.ScanRows(rows, &expenses)
+		sumBalance += expenses.ExpensesBalance
+		// Calculate spending for each row
+		spending := expenses.ExpensesMoney - expenses.ExpensesBalance
+		expenses.TotalSpending += spending
 		expensesData = append(expensesData, expenses)
 	}
 
-	return expensesData
+	var expensesCard res_dtos.ExpensesCard
+	expensesCard.Data = expensesData
+	expensesCard.TotalBalance = sumBalance
+
+	return expensesCard
 }
 
 func GetListMoneyCardDetail(c *gin.Context) []models.ExpensesDetail {
