@@ -1,29 +1,27 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/9cps/api-go-gin/controllers"
+	_ "github.com/9cps/api-go-gin/docs"
 	"github.com/9cps/api-go-gin/initializers"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
-	docs "github.com/9cps/api-go-gin/docs"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @BasePath /api/v1
+//	@title			Swagger Example Golang APIs
+//	@version		1.0
+//	@description	This is a sample server celler server.
 
-// PingExample godoc
-// @Summary ping example
-// @Schemes
-// @Description do ping
-// @Tags example
-// @Accept json
-// @Produce json
-// @Success 200 {string} Helloworld
-// @Router /healtcheck/* [get]
-// @Router /expense/* [get]
+//	@host		localhost:8080
+//	@BasePath	/api/v1
 
+// @securityDefinitions.basic	BasicAuth
+// @Router /healthcheck/* [get]
 func init() {
 	initializers.LoadEnv()
 	initializers.ConncetDatabse()
@@ -39,10 +37,19 @@ func main() {
 	}))
 
 	// Serve Swagger documentation
-	docs.SwaggerInfo.BasePath = "/api/v1"
 	v1 := r.Group("/api/v1")
 	{
-		HealthCheck := v1.Group("/healtcheck")
+		Test := v1.Group("/Test")
+		{
+			Test.GET("/GetHello", func(c *gin.Context) {
+				// Replace this with the actual response data you want to return
+				responseData := "Hello, this is a test response."
+
+				c.JSON(http.StatusOK, responseData)
+			})
+		}
+
+		HealthCheck := v1.Group("/healthcheck")
 		{
 			HealthCheck.GET("/HealthCheckAPI", controllers.HealthCheckAPI)
 			HealthCheck.GET("/HealthCheckDB", controllers.HealthCheckDB)

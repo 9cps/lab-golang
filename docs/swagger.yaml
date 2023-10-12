@@ -1,5 +1,12 @@
 basePath: /api/v1
+host: localhost:8080
 info:
   contact: {}
+  description: This is a sample server celler server.
+  title: Swagger Example Golang APIs
+  version: "1.0"
 paths: {}
+securityDefinitions:
+  BasicAuth:
+    type: basic
 swagger: "2.0"
