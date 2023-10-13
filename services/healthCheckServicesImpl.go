@@ -16,8 +16,8 @@ func NewHealthCheckServiceImpl(healthCheckRepository repository.HealthCheckRepos
 	}
 }
 
-func (t *HealthCheckServiceImpl) HealthCheckDB() bool {
-	statusDb := repository.HealthCheckRepository.HealthCheckDB(nil) // Call the function in the repository to open the database return true, false
+func (s *HealthCheckServiceImpl) HealthCheckDB() bool {
+	statusDb := s.HealthCheckRepository.HealthCheckDB() // Call the function in the repository to open the database return true, false
 
 	if !statusDb {
 		fmt.Printf("Error connecting to the database: %v\n", statusDb)

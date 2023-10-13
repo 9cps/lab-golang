@@ -29,13 +29,14 @@ func NewHealthCheckController(services services.HealthCheckServices) *HealthChec
 // @Success      200  {object}  res_dtos.DefaultResponse
 //
 //	@Router		/healthcheck/HealthCheckAPI [get]
-func (c *HealthCheckController) HealthCheckAPI(ctx *gin.Context) {
+func (h_controller *HealthCheckController) HealthCheckAPI(ctx *gin.Context) {
 	response := res_dtos.DefaultResponse{
 		Status:  string(res_dtos.Success),
 		Message: "APIs works normally.",
 		Date:    time.Now().Format("02/01/2006 15:04:05"),
 	}
 
+	ctx.Header("Content-Type", "application/json")
 	ctx.JSON(http.StatusOK, response)
 }
 
@@ -50,7 +51,7 @@ func (c *HealthCheckController) HealthCheckAPI(ctx *gin.Context) {
 //
 //	@Router		/healthcheck/HealthCheckDB [get]
 func (c *HealthCheckController) HealthCheckDB(ctx *gin.Context) {
-	db := services.HealthCheckServices.HealthCheckDB(nil)
+	db := c.healthCheckServices.HealthCheckDB()
 	var result string
 
 	if db {
@@ -65,5 +66,6 @@ func (c *HealthCheckController) HealthCheckDB(ctx *gin.Context) {
 		Date:    time.Now().Format("02/01/2006 15:04:05"),
 	}
 
+	ctx.Header("Content-Type", "application/json")
 	ctx.JSON(200, response)
 }
