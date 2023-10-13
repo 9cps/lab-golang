@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/healthcheck/HealthCheckAPI": {
+        "/HealthCheck/api": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -24,7 +24,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "healthcheck"
+                    "HealthCheck"
                 ],
                 "summary": "Show status api",
                 "responses": {
@@ -37,7 +37,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/healthcheck/HealthCheckDB": {
+        "/HealthCheck/db": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -46,7 +46,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "healthcheck"
+                    "HealthCheck"
                 ],
                 "summary": "Show status database",
                 "responses": {

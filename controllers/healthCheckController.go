@@ -22,13 +22,13 @@ func NewHealthCheckController(services services.HealthCheckServices) *HealthChec
 // HealthCheckAPI godoc
 //
 //	@Summary	Show status api
-//	@Tags		healthcheck
+//	@Tags		HealthCheck
 //	@Accept		json
 //	@Produce	json
 //
 // @Success      200  {object}  res_dtos.DefaultResponse
 //
-//	@Router		/healthcheck/HealthCheckAPI [get]
+//	@Router		/HealthCheck/api [get]
 func (h_controller *HealthCheckController) HealthCheckAPI(ctx *gin.Context) {
 	response := res_dtos.DefaultResponse{
 		Status:  string(res_dtos.Success),
@@ -43,13 +43,13 @@ func (h_controller *HealthCheckController) HealthCheckAPI(ctx *gin.Context) {
 // HealthCheckDB godoc
 //
 //	@Summary	Show status database
-//	@Tags		healthcheck
+//	@Tags		HealthCheck
 //	@Accept		json
 //	@Produce	json
 //
 // @Success      200  {object}  res_dtos.DefaultResponse
 //
-//	@Router		/healthcheck/HealthCheckDB [get]
+//	@Router		/HealthCheck/db [get]
 func (c *HealthCheckController) HealthCheckDB(ctx *gin.Context) {
 	db := c.healthCheckServices.HealthCheckDB()
 	var result string

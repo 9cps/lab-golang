@@ -20,9 +20,9 @@ func NewRouter(healthCheckController *controllers.HealthCheckController) *gin.En
 	})
 
 	baseRouter := router.Group("/api/v1")
-	healthCheckRouter := baseRouter.Group("/healthcheck")
-	healthCheckRouter.GET("/HealthCheckAPI", healthCheckController.HealthCheckAPI)
-	healthCheckRouter.GET("/HealthCheckDB", healthCheckController.HealthCheckDB)
+	healthCheckRouter := baseRouter.Group("/HealthCheck")
+	healthCheckRouter.GET("/api", healthCheckController.HealthCheckAPI)
+	healthCheckRouter.GET("/db", healthCheckController.HealthCheckDB)
 
 	return router
 }

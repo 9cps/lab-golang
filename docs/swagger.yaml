@@ -17,7 +17,7 @@ info:
   title: Swagger Example Golang APIs
   version: "1.0"
 paths:
-  /healthcheck/HealthCheckAPI:
+  /HealthCheck/api:
     get:
       consumes:
       - application/json
@@ -30,8 +30,8 @@ paths:
             $ref: '#/definitions/dtos.DefaultResponse'
       summary: Show status api
       tags:
-      - healthcheck
-  /healthcheck/HealthCheckDB:
+      - HealthCheck
+  /HealthCheck/db:
     get:
       consumes:
       - application/json
@@ -44,7 +44,7 @@ paths:
             $ref: '#/definitions/dtos.DefaultResponse'
       summary: Show status database
       tags:
-      - healthcheck
+      - HealthCheck
 securityDefinitions:
   BasicAuth:
     type: basic

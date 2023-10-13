@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/9cps/api-go-gin/controllers"
 	_ "github.com/9cps/api-go-gin/docs"
@@ -52,8 +53,16 @@ func main() {
 	// Router
 	routes := router.NewRouter(healthCheckController)
 
+	// Read the server address from the environment variable
+	serverAddr := os.Getenv("SERVER_ADDR")
+
+	// If the SERVER_ADDR environment variable is not set, use a default address
+	if serverAddr == "" {
+		serverAddr = ":8080" // Set a default address
+	}
+
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    serverAddr,
 		Handler: routes,
 	}
 
