@@ -9,6 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type HealthCheckController struct {
+	healthCheckServices services.HealthCheckServices
+}
+
+func NewHealthCheckController(services services.HealthCheckServices) *HealthCheckController {
+	return &HealthCheckController{
+		healthCheckServices: services,
+	}
+}
+
 // HealthCheckAPI godoc
 //
 //	@Summary	Show status api
@@ -19,14 +29,14 @@ import (
 // @Success      200  {object}  res_dtos.DefaultResponse
 //
 //	@Router		/healthcheck/HealthCheckAPI [get]
-func HealthCheckAPI(c *gin.Context) {
+func (c *HealthCheckController) HealthCheckAPI(ctx *gin.Context) {
 	response := res_dtos.DefaultResponse{
 		Status:  string(res_dtos.Success),
 		Message: "APIs works normally.",
 		Date:    time.Now().Format("02/01/2006 15:04:05"),
 	}
 
-	c.JSON(http.StatusOK, response)
+	ctx.JSON(http.StatusOK, response)
 }
 
 // HealthCheckDB godoc
@@ -39,8 +49,8 @@ func HealthCheckAPI(c *gin.Context) {
 // @Success      200  {object}  res_dtos.DefaultResponse
 //
 //	@Router		/healthcheck/HealthCheckDB [get]
-func HealthCheckDB(c *gin.Context) {
-	db := services.HealthCheckDB()
+func (c *HealthCheckController) HealthCheckDB(ctx *gin.Context) {
+	db := services.HealthCheckServices.HealthCheckDB(nil)
 	var result string
 
 	if db {
@@ -55,5 +65,5 @@ func HealthCheckDB(c *gin.Context) {
 		Date:    time.Now().Format("02/01/2006 15:04:05"),
 	}
 
-	c.JSON(200, response)
+	ctx.JSON(200, response)
 }

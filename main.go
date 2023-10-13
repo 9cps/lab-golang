@@ -5,12 +5,14 @@ import (
 
 	"github.com/9cps/api-go-gin/controllers"
 	_ "github.com/9cps/api-go-gin/docs"
+	"github.com/9cps/api-go-gin/helper"
 	"github.com/9cps/api-go-gin/initializers"
+	"github.com/9cps/api-go-gin/repository"
+	router "github.com/9cps/api-go-gin/routers"
+	services "github.com/9cps/api-go-gin/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"gorm.io/gorm"
 )
 
 //	@title			Swagger Example Golang APIs
@@ -21,11 +23,12 @@ import (
 //	@BasePath	/api/v1
 
 // @securityDefinitions.basic	BasicAuth
-// @Router /healthcheck/* [get]
 func init() {
 	initializers.LoadEnv()
 	initializers.ConncetDatabse()
 }
+
+var DB *gorm.DB
 
 func main() {
 	r := gin.Default()
@@ -37,33 +40,42 @@ func main() {
 	}))
 
 	// Serve Swagger documentation
-	v1 := r.Group("/api/v1")
-	{
-		Test := v1.Group("/Test")
-		{
-			Test.GET("/GetHello", func(c *gin.Context) {
-				// Replace this with the actual response data you want to return
-				responseData := "Hello, this is a test response."
+	// Repository
+	healthCheckRepository := repository.NewHealthCheckRepositoryImpl(DB)
 
-				c.JSON(http.StatusOK, responseData)
-			})
-		}
+	// Service
+	healthCheckServices := services.NewHealthCheckServiceImpl(healthCheckRepository)
 
-		HealthCheck := v1.Group("/healthcheck")
-		{
-			HealthCheck.GET("/HealthCheckAPI", controllers.HealthCheckAPI)
-			HealthCheck.GET("/HealthCheckDB", controllers.HealthCheckDB)
-		}
+	// Controller
+	healthCheckController := controllers.NewHealthCheckController(healthCheckServices)
 
-		// Expenses
-		Expense := v1.Group("/expense")
-		{
-			Expense.GET("/GetListMoneyCard", controllers.GetListMoneyCard)
-			Expense.POST("/CreateExpenses", controllers.CreateExpensesDetail)
-			Expense.POST("/CreateExpensesDetail", controllers.CreateExpensesDetail)
-			Expense.POST("/GetListMoneyCardDetail", controllers.GetListMoneyCardDetail)
-		}
+	// Router
+	routes := router.NewRouter(healthCheckController)
+
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: routes,
 	}
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	r.Run()
+
+	err := server.ListenAndServe()
+	helper.ErrorPanic(err)
+
+	//v1 := r.Group("/api/v1")
+	//{
+	// HealthCheck := v1.Group("/healthcheck")
+	// {
+	// 	HealthCheck.GET("/HealthCheckAPI", controllers.HealthCheckAPI)
+	// 	HealthCheck.GET("/HealthCheckDB", controllers.HealthCheckDB)
+	// }
+
+	// Expense := v1.Group("/expense")
+	// {
+	// 	Expense.GET("/GetListMoneyCard", controllers.GetListMoneyCard)
+	// 	Expense.POST("/CreateExpenses", controllers.CreateExpensesDetail)
+	// 	Expense.POST("/CreateExpensesDetail", controllers.CreateExpensesDetail)
+	// 	Expense.POST("/GetListMoneyCardDetail", controllers.GetListMoneyCardDetail)
+	// }
+	//}
+	//r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	//r.Run()
 }
