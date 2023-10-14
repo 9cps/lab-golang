@@ -10,7 +10,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func NewRouter(healthCheckController *controllers.HealthCheckController) *gin.Engine {
+func NewRouter(healthCheckController *controllers.HealthCheckController, expensesController *controllers.ExpensesController) *gin.Engine {
 	router := gin.Default()
 	// add swagger
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -24,5 +24,7 @@ func NewRouter(healthCheckController *controllers.HealthCheckController) *gin.En
 	healthCheckRouter.GET("/api", healthCheckController.HealthCheckAPI)
 	healthCheckRouter.GET("/db", healthCheckController.HealthCheckDB)
 
+	expensesRouter := baseRouter.Group("/Expenses")
+	expensesRouter.POST("/create", expensesController.CreateExpenses)
 	return router
 }

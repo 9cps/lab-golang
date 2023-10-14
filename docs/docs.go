@@ -15,6 +15,39 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/Expenses/create": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Create expenses",
+                "parameters": [
+                    {
+                        "description": "Expense data",
+                        "name": "req_dtos.Expenses",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_9cps_api-go-gin_dtos_request.Expenses"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/HealthCheck/api": {
             "get": {
                 "consumes": [
@@ -73,6 +106,20 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_9cps_api-go-gin_dtos_request.Expenses": {
+            "type": "object",
+            "properties": {
+                "expensesMoney": {
+                    "type": "number"
+                },
+                "expensesMonth": {
+                    "type": "integer"
+                },
+                "expensesYear": {
+                    "type": "integer"
                 }
             }
         }

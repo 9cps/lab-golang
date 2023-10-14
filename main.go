@@ -43,15 +43,18 @@ func main() {
 	// Serve Swagger documentation
 	// Repository
 	healthCheckRepository := repository.NewHealthCheckRepositoryImpl(DB)
+	expensesRepository := repository.NewExpensesRepositoryImpl(DB)
 
 	// Service
 	healthCheckServices := services.NewHealthCheckServiceImpl(healthCheckRepository)
+	expensesServices := services.NewExpensesServiceImpl(expensesRepository)
 
 	// Controller
 	healthCheckController := controllers.NewHealthCheckController(healthCheckServices)
+	expensesController := controllers.NewExpensesController(expensesServices)
 
 	// Router
-	routes := router.NewRouter(healthCheckController)
+	routes := router.NewRouter(healthCheckController, expensesController)
 
 	// Read the server address from the environment variable
 	serverAddr := os.Getenv("SERVER_ADDR")

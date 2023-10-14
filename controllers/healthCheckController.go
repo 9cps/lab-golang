@@ -26,10 +26,10 @@ func NewHealthCheckController(services services.HealthCheckServices) *HealthChec
 //	@Accept		json
 //	@Produce	json
 //
-// @Success      200  {object}  res_dtos.DefaultResponse
+//	@Success	200	{object}	res_dtos.DefaultResponse
 //
 //	@Router		/HealthCheck/api [get]
-func (h_controller *HealthCheckController) HealthCheckAPI(ctx *gin.Context) {
+func (c *HealthCheckController) HealthCheckAPI(ctx *gin.Context) {
 	response := res_dtos.DefaultResponse{
 		Status:  string(res_dtos.Success),
 		Message: "APIs works normally.",
@@ -47,7 +47,7 @@ func (h_controller *HealthCheckController) HealthCheckAPI(ctx *gin.Context) {
 //	@Accept		json
 //	@Produce	json
 //
-// @Success      200  {object}  res_dtos.DefaultResponse
+//	@Success	200	{object}	res_dtos.DefaultResponse
 //
 //	@Router		/HealthCheck/db [get]
 func (c *HealthCheckController) HealthCheckDB(ctx *gin.Context) {

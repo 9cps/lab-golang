@@ -10,6 +10,15 @@ definitions:
       status:
         type: string
     type: object
+  github_com_9cps_api-go-gin_dtos_request.Expenses:
+    properties:
+      expensesMoney:
+        type: number
+      expensesMonth:
+        type: integer
+      expensesYear:
+        type: integer
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -17,6 +26,27 @@ info:
   title: Swagger Example Golang APIs
   version: "1.0"
 paths:
+  /Expenses/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Expense data
+        in: body
+        name: req_dtos.Expenses
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_9cps_api-go-gin_dtos_request.Expenses'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.DefaultResponse'
+      summary: Create expenses
+      tags:
+      - Expenses
   /HealthCheck/api:
     get:
       consumes:
