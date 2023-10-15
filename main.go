@@ -11,8 +11,6 @@ import (
 	"github.com/9cps/api-go-gin/repository"
 	router "github.com/9cps/api-go-gin/routers"
 	services "github.com/9cps/api-go-gin/services"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -32,14 +30,6 @@ func init() {
 var DB *gorm.DB
 
 func main() {
-	r := gin.Default()
-	// Use CORS middleware with a wildcard to allow all origins for all routes.
-	r.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders: []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization"},
-	}))
-
 	// Serve Swagger documentation
 	// Repository
 	healthCheckRepository := repository.NewHealthCheckRepositoryImpl(DB)
@@ -71,23 +61,4 @@ func main() {
 
 	err := server.ListenAndServe()
 	helper.ErrorPanic(err)
-
-	//v1 := r.Group("/api/v1")
-	//{
-	// HealthCheck := v1.Group("/healthcheck")
-	// {
-	// 	HealthCheck.GET("/HealthCheckAPI", controllers.HealthCheckAPI)
-	// 	HealthCheck.GET("/HealthCheckDB", controllers.HealthCheckDB)
-	// }
-
-	// Expense := v1.Group("/expense")
-	// {
-	// 	Expense.GET("/GetListMoneyCard", controllers.GetListMoneyCard)
-	// 	Expense.POST("/CreateExpenses", controllers.CreateExpensesDetail)
-	// 	Expense.POST("/CreateExpensesDetail", controllers.CreateExpensesDetail)
-	// 	Expense.POST("/GetListMoneyCardDetail", controllers.GetListMoneyCardDetail)
-	// }
-	//}
-	//r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	//r.Run()
 }

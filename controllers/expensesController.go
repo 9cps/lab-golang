@@ -53,6 +53,7 @@ func (c *ExpensesController) CreateExpenses(ctx *gin.Context) {
 		Data:    result,
 	}
 
+	ctx.Header("Content-Type", "application/json")
 	ctx.JSON(200, response)
 }
 
@@ -86,6 +87,7 @@ func (c *ExpensesController) CreateExpensesDetail(ctx *gin.Context) {
 		Data:    result,
 	}
 
+	ctx.Header("Content-Type", "application/json")
 	ctx.JSON(200, response)
 }
 
@@ -109,6 +111,7 @@ func (c *ExpensesController) GetListMoneyCard(ctx *gin.Context) {
 		Data:   listData, // Data retrieved from the SQL query
 	}
 	// Return data
+	ctx.Header("Content-Type", "application/json")
 	ctx.JSON(200, response)
 }
 
@@ -136,5 +139,6 @@ func (c *ExpensesController) GetListMoneyCardDetail(ctx *gin.Context) {
 		Data:   listData, // Data retrieved from the SQL query
 	}
 	// Return data
+	ctx.Header("Content-Type", "application/json")
 	ctx.JSON(200, response)
 }

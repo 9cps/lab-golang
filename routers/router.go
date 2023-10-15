@@ -1,9 +1,10 @@
 package router
 
 import (
-	"github.com/9cps/api-go-gin/controllers"
-
 	"net/http"
+
+	"github.com/9cps/api-go-gin/controllers"
+	"github.com/9cps/api-go-gin/middleware"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -12,6 +13,7 @@ import (
 
 func NewRouter(healthCheckController *controllers.HealthCheckController, expensesController *controllers.ExpensesController) *gin.Engine {
 	router := gin.Default()
+	router.Use(middleware.CORSMiddleware())
 	// add swagger
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
