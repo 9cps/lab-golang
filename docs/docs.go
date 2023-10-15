@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/Expenses/create": {
+        "/Expenses/CreateExpenses": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -48,7 +48,95 @@ const docTemplate = `{
                 }
             }
         },
-        "/HealthCheck/api": {
+        "/Expenses/CreateExpensesDetail": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Create expenses",
+                "parameters": [
+                    {
+                        "description": "ExpensesDetail data",
+                        "name": "req_dtos.ExpensesDetail",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.ExpensesDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/Expenses/GetListMoneyCard": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Get list money item",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/Expenses/GetListMoneyCardDetail": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expenses"
+                ],
+                "summary": "Get list money detail item",
+                "parameters": [
+                    {
+                        "description": "GetListMoneyCardDetail data",
+                        "name": "req_dtos.GetExpensesDetailById",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.GetExpensesDetailById"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.DefaultResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/HealthCheck/Api": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -70,7 +158,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/HealthCheck/db": {
+        "/HealthCheck/Database": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -106,6 +194,31 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "dtos.ExpensesDetail": {
+            "type": "object",
+            "properties": {
+                "expensesAmount": {
+                    "type": "number"
+                },
+                "expensesDesc": {
+                    "type": "string"
+                },
+                "expensesId": {
+                    "type": "integer"
+                },
+                "expensesType": {
+                    "type": "string"
+                }
+            }
+        },
+        "dtos.GetExpensesDetailById": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
                 }
             }
         },

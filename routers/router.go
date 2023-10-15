@@ -21,10 +21,13 @@ func NewRouter(healthCheckController *controllers.HealthCheckController, expense
 
 	baseRouter := router.Group("/api/v1")
 	healthCheckRouter := baseRouter.Group("/HealthCheck")
-	healthCheckRouter.GET("/api", healthCheckController.HealthCheckAPI)
-	healthCheckRouter.GET("/db", healthCheckController.HealthCheckDB)
+	healthCheckRouter.GET("/Api", healthCheckController.HealthCheckAPI)
+	healthCheckRouter.GET("/Database", healthCheckController.HealthCheckDB)
 
 	expensesRouter := baseRouter.Group("/Expenses")
-	expensesRouter.POST("/create", expensesController.CreateExpenses)
+	expensesRouter.POST("/CreateExpenses", expensesController.CreateExpenses)
+	expensesRouter.POST("/CreateExpensesDetail", expensesController.CreateExpensesDetail)
+	expensesRouter.GET("/GetListMoneyCard", expensesController.GetListMoneyCard)
+	expensesRouter.POST("/GetListMoneyCardDetail", expensesController.GetListMoneyCardDetail)
 	return router
 }

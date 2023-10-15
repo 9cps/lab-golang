@@ -10,6 +10,22 @@ definitions:
       status:
         type: string
     type: object
+  dtos.ExpensesDetail:
+    properties:
+      expensesAmount:
+        type: number
+      expensesDesc:
+        type: string
+      expensesId:
+        type: integer
+      expensesType:
+        type: string
+    type: object
+  dtos.GetExpensesDetailById:
+    properties:
+      id:
+        type: integer
+    type: object
   github_com_9cps_api-go-gin_dtos_request.Expenses:
     properties:
       expensesMoney:
@@ -26,7 +42,7 @@ info:
   title: Swagger Example Golang APIs
   version: "1.0"
 paths:
-  /Expenses/create:
+  /Expenses/CreateExpenses:
     post:
       consumes:
       - application/json
@@ -47,7 +63,63 @@ paths:
       summary: Create expenses
       tags:
       - Expenses
-  /HealthCheck/api:
+  /Expenses/CreateExpensesDetail:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ExpensesDetail data
+        in: body
+        name: req_dtos.ExpensesDetail
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.ExpensesDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.DefaultResponse'
+      summary: Create expenses
+      tags:
+      - Expenses
+  /Expenses/GetListMoneyCard:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.DefaultResponse'
+      summary: Get list money item
+      tags:
+      - Expenses
+  /Expenses/GetListMoneyCardDetail:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: GetListMoneyCardDetail data
+        in: body
+        name: req_dtos.GetExpensesDetailById
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.GetExpensesDetailById'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.DefaultResponse'
+      summary: Get list money detail item
+      tags:
+      - Expenses
+  /HealthCheck/Api:
     get:
       consumes:
       - application/json
@@ -61,7 +133,7 @@ paths:
       summary: Show status api
       tags:
       - HealthCheck
-  /HealthCheck/db:
+  /HealthCheck/Database:
     get:
       consumes:
       - application/json
