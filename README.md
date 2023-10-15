@@ -11,3 +11,6 @@ Golang APIs with Gin, GROM, PosgreSQL, OOP, MVC, Swagger, Swaggo
 
 *Start api*
 `$ go run main.go`
+
+*Open browser*
+http://localhost:8080/swagger/index.html
