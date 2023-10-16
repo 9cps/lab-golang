@@ -16,7 +16,7 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/Expenses/CreateExpenses": {
-            "post": {
+            "put": {
                 "consumes": [
                     "application/json"
                 ],
@@ -49,7 +49,7 @@ const docTemplate = `{
             }
         },
         "/Expenses/CreateExpensesDetail": {
-            "post": {
+            "put": {
                 "consumes": [
                     "application/json"
                 ],

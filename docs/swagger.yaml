@@ -43,7 +43,7 @@ info:
   version: "1.0"
 paths:
   /Expenses/CreateExpenses:
-    post:
+    put:
       consumes:
       - application/json
       parameters:
@@ -64,7 +64,7 @@ paths:
       tags:
       - Expenses
   /Expenses/CreateExpensesDetail:
-    post:
+    put:
       consumes:
       - application/json
       parameters:

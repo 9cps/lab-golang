@@ -31,7 +31,7 @@ func NewExpensesController(services services.ExpensesServices) *ExpensesControll
 //
 //	@Success	200					{object}	res_dtos.DefaultResponse
 //
-//	@Router		/Expenses/CreateExpenses [POST]
+//	@Router		/Expenses/CreateExpenses [PUT]
 func (c *ExpensesController) CreateExpenses(ctx *gin.Context) {
 
 	req := req_dtos.Expenses{}
@@ -67,7 +67,7 @@ func (c *ExpensesController) CreateExpenses(ctx *gin.Context) {
 //
 //	@Success	200						{object}	res_dtos.DefaultResponse
 //
-//	@Router		/Expenses/CreateExpensesDetail [POST]
+//	@Router		/Expenses/CreateExpensesDetail [PUT]
 func (c *ExpensesController) CreateExpensesDetail(ctx *gin.Context) {
 	req := req_dtos.ExpensesDetail{}
 	err := ctx.ShouldBindJSON(&req)

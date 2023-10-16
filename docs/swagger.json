@@ -10,7 +10,7 @@
     "basePath": "/api/v1",
     "paths": {
         "/Expenses/CreateExpenses": {
-            "post": {
+            "put": {
                 "consumes": [
                     "application/json"
                 ],
@@ -43,7 +43,7 @@
             }
         },
         "/Expenses/CreateExpensesDetail": {
-            "post": {
+            "put": {
                 "consumes": [
                     "application/json"
                 ],

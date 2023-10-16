@@ -27,8 +27,8 @@ func NewRouter(healthCheckController *controllers.HealthCheckController, expense
 	healthCheckRouter.GET("/Database", healthCheckController.HealthCheckDB)
 
 	expensesRouter := baseRouter.Group("/Expenses")
-	expensesRouter.POST("/CreateExpenses", expensesController.CreateExpenses)
-	expensesRouter.POST("/CreateExpensesDetail", expensesController.CreateExpensesDetail)
+	expensesRouter.PUT("/CreateExpenses", expensesController.CreateExpenses)
+	expensesRouter.PUT("/CreateExpensesDetail", expensesController.CreateExpensesDetail)
 	expensesRouter.GET("/GetListMoneyCard", expensesController.GetListMoneyCard)
 	expensesRouter.POST("/GetListMoneyCardDetail", expensesController.GetListMoneyCardDetail)
 	return router
