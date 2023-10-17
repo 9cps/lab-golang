@@ -1,5 +1,5 @@
 # # Lab-golang
-Golang APIs with Gin, GROM, PosgreSQL, OOP, MVC, Swagger, Swaggo
+Golang APIs with Gin, GROM, PosgreSQL, OOP, MVC, Swagger, Swaggo, Auth
 
 ## Step-by-step
 *Build migrate schema sql*
