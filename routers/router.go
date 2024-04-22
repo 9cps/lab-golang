@@ -13,7 +13,7 @@ import (
 
 func NewRouter(healthCheckController *controllers.HealthCheckController, expensesController *controllers.ExpensesController) *gin.Engine {
 	router := gin.Default()
-	router.Use(middleware.CORSMiddleware())
+	router.Use(middleware.CorsMiddleware())
 	// add swagger
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
