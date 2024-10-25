@@ -3,14 +3,14 @@ package services
 import (
 	"fmt"
 
-	"github.com/9cps/api-go-gin/repository"
+	"github.com/9cps/api-go-gin/repositories/interfaces"
 )
 
 type HealthCheckServiceImpl struct {
-	HealthCheckRepository repository.HealthCheckRepository
+	HealthCheckRepository interfaces.IHealthCheckRepository
 }
 
-func NewHealthCheckServiceImpl(healthCheckRepository repository.HealthCheckRepository) HealthCheckServices {
+func NewHealthCheckServiceImpl(healthCheckRepository interfaces.IHealthCheckRepository) interfaces.IHealthCheckRepository {
 	return &HealthCheckServiceImpl{
 		HealthCheckRepository: healthCheckRepository,
 	}

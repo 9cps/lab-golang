@@ -1,10 +1,11 @@
-package repository
+package repositories
 
 import (
 	"fmt"
 	"os"
 
 	"github.com/9cps/api-go-gin/initializers"
+	"github.com/9cps/api-go-gin/repositories/interfaces"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -18,7 +19,7 @@ type HealthCheckRepositoryImpl struct {
 	Db *gorm.DB
 }
 
-func NewHealthCheckRepositoryImpl(Db *gorm.DB) HealthCheckRepository {
+func NewHealthCheckRepositoryImpl(Db *gorm.DB) interfaces.IHealthCheckRepository {
 	return &HealthCheckRepositoryImpl{Db: Db}
 }
 

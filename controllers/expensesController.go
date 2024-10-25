@@ -7,15 +7,15 @@ import (
 	res_dtos "github.com/9cps/api-go-gin/dtos/response"
 	"github.com/9cps/api-go-gin/helper"
 	"github.com/9cps/api-go-gin/models"
-	services "github.com/9cps/api-go-gin/services"
+	"github.com/9cps/api-go-gin/services/interfaces"
 	"github.com/gin-gonic/gin"
 )
 
 type ExpensesController struct {
-	expensesServices services.ExpensesServices
+	expensesServices interfaces.IExpensesServices
 }
 
-func NewExpensesController(services services.ExpensesServices) *ExpensesController {
+func NewExpensesController(services interfaces.IExpensesServices) *ExpensesController {
 	return &ExpensesController{
 		expensesServices: services,
 	}

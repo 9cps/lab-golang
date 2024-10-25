@@ -5,16 +5,16 @@ import (
 	res_dtos "github.com/9cps/api-go-gin/dtos/response"
 	"github.com/9cps/api-go-gin/initializers"
 	"github.com/9cps/api-go-gin/models"
-	"github.com/9cps/api-go-gin/repository"
+	"github.com/9cps/api-go-gin/repositories/interfaces"
 )
 
 type ExpensesServiceImpl struct {
-	ExpensesRopository repository.ExpensesRopository
+	ExpensesRepository interfaces.IExpensesRepository
 }
 
-func NewExpensesServiceImpl(expensesRopository repository.ExpensesRopository) ExpensesServices {
+func NewExpensesServiceImpl(expensesRepository interfaces.IExpensesRepository) *ExpensesServiceImpl {
 	return &ExpensesServiceImpl{
-		ExpensesRopository: expensesRopository,
+		ExpensesRepository: expensesRepository,
 	}
 }
 
@@ -30,7 +30,7 @@ func (s *ExpensesServiceImpl) InsertExpenses(req req_dtos.Expenses) models.Expen
 			ExpensesBalance: req.ExpensesMoney, // จำนวนเงินคงเหลือ
 		}
 
-		result := s.ExpensesRopository.InsertExpenses(obj)
+		result := s.ExpensesRepository.InsertExpenses(obj)
 		return result
 	}
 	return models.Expenses{}
@@ -46,7 +46,7 @@ func (s *ExpensesServiceImpl) InsertExpensesDetail(req req_dtos.ExpensesDetail) 
 	}
 
 	// Create the ExpensesDetail record
-	result := s.ExpensesRopository.InsertExpensesDetail(obj)
+	result := s.ExpensesRepository.InsertExpensesDetail(obj)
 	return result
 }
 
@@ -73,11 +73,11 @@ func DeleteExpensesIfCountExceeds(req req_dtos.Expenses, threshold int64) bool {
 }
 
 func (s *ExpensesServiceImpl) GetListMoneyCard() res_dtos.ExpensesCard {
-	result := s.ExpensesRopository.GetListMoneyCard()
+	result := s.ExpensesRepository.GetListMoneyCard()
 	return result
 }
 
 func (s *ExpensesServiceImpl) GetListMoneyCardDetail(req req_dtos.GetExpensesDetailById) []models.ExpensesDetail {
-	result := s.ExpensesRopository.GetListMoneyCardDetail(req)
+	result := s.ExpensesRepository.GetListMoneyCardDetail(req)
 	return result
 }

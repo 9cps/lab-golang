@@ -8,9 +8,9 @@ import (
 	_ "github.com/9cps/api-go-gin/docs"
 	"github.com/9cps/api-go-gin/helper"
 	"github.com/9cps/api-go-gin/initializers"
-	"github.com/9cps/api-go-gin/repository"
+	repositories "github.com/9cps/api-go-gin/repositories/repository"
 	router "github.com/9cps/api-go-gin/routers"
-	services "github.com/9cps/api-go-gin/services"
+	services "github.com/9cps/api-go-gin/services/service"
 	"gorm.io/gorm"
 )
 
@@ -32,8 +32,8 @@ var DB *gorm.DB
 func main() {
 	// Serve Swagger documentation
 	// Repository
-	healthCheckRepository := repository.NewHealthCheckRepositoryImpl(DB)
-	expensesRepository := repository.NewExpensesRepositoryImpl(DB)
+	healthCheckRepository := repositories.NewHealthCheckRepositoryImpl(DB)
+	expensesRepository := repositories.NewExpensesRepositoryImpl(DB)
 
 	// Service
 	healthCheckServices := services.NewHealthCheckServiceImpl(healthCheckRepository)

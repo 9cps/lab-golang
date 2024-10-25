@@ -1,4 +1,4 @@
-package repository
+package repositories
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	res_dtos "github.com/9cps/api-go-gin/dtos/response"
 	"github.com/9cps/api-go-gin/initializers"
 	"github.com/9cps/api-go-gin/models"
+	"github.com/9cps/api-go-gin/repositories/interfaces"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -15,7 +16,7 @@ type ExpensesRepositoryImpl struct {
 	Db *gorm.DB
 }
 
-func NewExpensesRepositoryImpl(Db *gorm.DB) ExpensesRopository {
+func NewExpensesRepositoryImpl(Db *gorm.DB) interfaces.IExpensesRepository {
 	return &ExpensesRepositoryImpl{Db: Db}
 }
 

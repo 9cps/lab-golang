@@ -5,15 +5,15 @@ import (
 	"time"
 
 	res_dtos "github.com/9cps/api-go-gin/dtos/response"
-	services "github.com/9cps/api-go-gin/services"
+	"github.com/9cps/api-go-gin/services/interfaces"
 	"github.com/gin-gonic/gin"
 )
 
 type HealthCheckController struct {
-	healthCheckServices services.HealthCheckServices
+	healthCheckServices interfaces.HealthCheckServices
 }
 
-func NewHealthCheckController(services services.HealthCheckServices) *HealthCheckController {
+func NewHealthCheckController(services interfaces.HealthCheckServices) *HealthCheckController {
 	return &HealthCheckController{
 		healthCheckServices: services,
 	}
