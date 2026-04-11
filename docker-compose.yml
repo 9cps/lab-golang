@@ -29,6 +29,16 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
+    working_dir: /app
+    command:
+      - sh
+      - -c
+      - |
+        go mod tidy && \
+        go run migrate/migrateSchema.go && \
+        swag fmt && \
+        swag init && \
+        go run main.go
     environment:
       SERVER_ADDR: ":8080"
       SERVER_NAME: postgres
