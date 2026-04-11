@@ -11,4 +11,6 @@ type IExpensesServices interface {
 	InsertExpensesDetail(req req_dtos.ExpensesDetail) models.ExpensesDetail
 	GetListMoneyCard() res_dtos.ExpensesCard
 	GetListMoneyCardDetail(req req_dtos.GetExpensesDetailById) []models.ExpensesDetail
+	UpdateExpensesDetail(req req_dtos.UpdateExpensesDetail) models.ExpensesDetail
+	DeleteExpensesDetail(req req_dtos.DeleteExpensesDetailById) bool
 }

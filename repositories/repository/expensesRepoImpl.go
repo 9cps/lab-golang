@@ -5,10 +5,8 @@ import (
 
 	req_dtos "github.com/9cps/api-go-gin/dtos/request"
 	res_dtos "github.com/9cps/api-go-gin/dtos/response"
-	"github.com/9cps/api-go-gin/initializers"
 	"github.com/9cps/api-go-gin/models"
 	"github.com/9cps/api-go-gin/repositories/interfaces"
-	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +19,7 @@ func NewExpensesRepositoryImpl(Db *gorm.DB) interfaces.IExpensesRepository {
 }
 
 func (r *ExpensesRepositoryImpl) InsertExpenses(req models.Expenses) models.Expenses {
-	result := initializers.DB.Create(&req)
+	result := r.Db.Create(&req)
 	if result.Error != nil {
 		return models.Expenses{}
 	}
@@ -30,62 +28,31 @@ func (r *ExpensesRepositoryImpl) InsertExpenses(req models.Expenses) models.Expe
 
 func (r *ExpensesRepositoryImpl) InsertExpensesDetail(req models.ExpensesDetail) models.ExpensesDetail {
 	// Create the ExpensesDetail record
-	result := initializers.DB.Create(&req)
+	result := r.Db.Create(&req)
 	if result.Error != nil {
 		return models.ExpensesDetail{}
 	}
 
 	// Update the Expenses record's ExpensesBalance
 	var expenses models.Expenses
-	if err := initializers.DB.First(&expenses, req.ExpensesId).Error; err != nil {
-		fmt.Printf("Error creating ExpensesDetail: %v", result.Error)
+	if err := r.Db.First(&expenses, req.ExpensesId).Error; err != nil {
+		fmt.Printf("Error loading parent Expenses: %v\n", err)
 		return models.ExpensesDetail{}
 	}
 
 	calBalance := expenses.ExpensesBalance - req.ExpensesAmount
 
-	if err := initializers.DB.Model(&expenses).Updates(models.Expenses{ExpensesBalance: calBalance}).Error; err != nil {
-		fmt.Printf("Error update ExpensesDetail: %v", result.Error)
+	if err := r.Db.Model(&expenses).Updates(models.Expenses{ExpensesBalance: calBalance}).Error; err != nil {
+		fmt.Printf("Error updating Expenses balance: %v\n", err)
 		return models.ExpensesDetail{}
 	}
 
 	return req
 }
 
-func DeleteExpensesIfCountExceeds(c *gin.Context, threshold int64) bool {
-	// Count the number of records
-	var count int64
-	if err := initializers.DB.Model(&models.Expenses{}).Count(&count).Error; err != nil {
-		c.JSON(400, gin.H{
-			"error": "Failed to count expenses records",
-		})
-		return false
-	}
-
-	if count >= threshold {
-		// Find and delete the record with the smallest ID
-		var expenses models.Expenses
-		if err := initializers.DB.Order("id").First(&expenses).Error; err != nil {
-			c.JSON(400, gin.H{
-				"error": "Failed to find the record to delete",
-			})
-			return false
-		}
-
-		// ใช้ลบ Unscoped เนื่องจากพื้น db มีจำกัด
-		if err := initializers.DB.Unscoped().Delete(&expenses).Error; err != nil {
-			c.JSON(400, gin.H{
-				"error": "Failed to delete the record",
-			})
-			return false
-		}
-	}
-	return true
-}
-
 func (r *ExpensesRepositoryImpl) GetListMoneyCard() res_dtos.ExpensesCard {
 	// SQL Query
-	rows, err := initializers.DB.Raw("SELECT * FROM expenses ORDER BY expenses_month ASC").Rows()
+	rows, err := r.Db.Raw("SELECT * FROM expenses ORDER BY expenses_month ASC").Rows()
 
 	// Check for errors
 	if err != nil {
@@ -100,7 +67,7 @@ func (r *ExpensesRepositoryImpl) GetListMoneyCard() res_dtos.ExpensesCard {
 	for rows.Next() {
 		var expenses res_dtos.Expenses
 		// Scan the result into the friend struct
-		initializers.DB.ScanRows(rows, &expenses)
+		r.Db.ScanRows(rows, &expenses)
 		sumBalance += expenses.ExpensesBalance
 		// Calculate spending for each row
 		spending := expenses.ExpensesMoney - expenses.ExpensesBalance
@@ -115,9 +82,64 @@ func (r *ExpensesRepositoryImpl) GetListMoneyCard() res_dtos.ExpensesCard {
 	return expensesCard
 }
 
+func (r *ExpensesRepositoryImpl) UpdateExpensesDetail(req req_dtos.UpdateExpensesDetail) models.ExpensesDetail {
+	var detail models.ExpensesDetail
+	if err := r.Db.First(&detail, req.Id).Error; err != nil {
+		fmt.Printf("Error loading ExpensesDetail: %v\n", err)
+		return models.ExpensesDetail{}
+	}
+
+	var expenses models.Expenses
+	if err := r.Db.First(&expenses, detail.ExpensesId).Error; err != nil {
+		fmt.Printf("Error loading parent Expenses: %v\n", err)
+		return models.ExpensesDetail{}
+	}
+
+	newBalance := expenses.ExpensesBalance + detail.ExpensesAmount - req.ExpensesAmount
+	if err := r.Db.Model(&expenses).Updates(map[string]interface{}{"expenses_balance": newBalance}).Error; err != nil {
+		fmt.Printf("Error updating Expenses balance: %v\n", err)
+		return models.ExpensesDetail{}
+	}
+
+	detail.ExpensesType = req.ExpensesType
+	detail.ExpensesDesc = req.ExpensesDesc
+	detail.ExpensesAmount = req.ExpensesAmount
+	if err := r.Db.Save(&detail).Error; err != nil {
+		fmt.Printf("Error saving ExpensesDetail: %v\n", err)
+		return models.ExpensesDetail{}
+	}
+	return detail
+}
+
+func (r *ExpensesRepositoryImpl) DeleteExpensesDetail(req req_dtos.DeleteExpensesDetailById) bool {
+	var detail models.ExpensesDetail
+	if err := r.Db.First(&detail, req.Id).Error; err != nil {
+		fmt.Printf("Error loading ExpensesDetail: %v\n", err)
+		return false
+	}
+
+	var expenses models.Expenses
+	if err := r.Db.First(&expenses, detail.ExpensesId).Error; err != nil {
+		fmt.Printf("Error loading parent Expenses: %v\n", err)
+		return false
+	}
+
+	newBalance := expenses.ExpensesBalance + detail.ExpensesAmount
+	if err := r.Db.Model(&expenses).Updates(map[string]interface{}{"expenses_balance": newBalance}).Error; err != nil {
+		fmt.Printf("Error updating Expenses balance: %v\n", err)
+		return false
+	}
+
+	if err := r.Db.Unscoped().Delete(&detail).Error; err != nil {
+		fmt.Printf("Error deleting ExpensesDetail: %v\n", err)
+		return false
+	}
+	return true
+}
+
 func (r *ExpensesRepositoryImpl) GetListMoneyCardDetail(req req_dtos.GetExpensesDetailById) []models.ExpensesDetail {
 	// SQL Query
-	rows, err := initializers.DB.Raw("SELECT * FROM expenses_details WHERE expenses_id = ? ORDER BY created_at DESC", req.Id).Rows()
+	rows, err := r.Db.Raw("SELECT * FROM expenses_details WHERE expenses_id = ? ORDER BY created_at DESC", req.Id).Rows()
 
 	// Check for errors
 	if err != nil {
@@ -130,7 +152,7 @@ func (r *ExpensesRepositoryImpl) GetListMoneyCardDetail(req req_dtos.GetExpenses
 
 	for rows.Next() {
 		// Scan the result into the friend struct
-		initializers.DB.ScanRows(rows, &expenses)
+		r.Db.ScanRows(rows, &expenses)
 		expensesData = append(expensesData, expenses)
 	}
 

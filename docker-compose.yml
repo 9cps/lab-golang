@@ -1,17 +1,44 @@
-version: '3.1'
-
 services:
   postgres:
-    image: postgres:latest
-    container_name: my_postgres_db
+    image: postgres:16-alpine
+    container_name: lab_golang_postgres
+    restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${SERVER_PORT:-5432}:5432"
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: lab-golang
+      POSTGRES_USER: ${USER_DB:-root}
+      POSTGRES_PASSWORD: ${PASSWORD_DB:-root}
+      POSTGRES_DB: ${DATABASE_NAME:-lab-golang}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USER_DB:-root} -d ${DATABASE_NAME:-lab-golang}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lab_golang_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_ADDR: ":8080"
+      SERVER_NAME: postgres
+      SERVER_PORT: 5432
+      DATABASE_NAME: ${DATABASE_NAME:-lab-golang}
+      USER_DB: ${USER_DB:-root}
+      PASSWORD_DB: ${PASSWORD_DB:-root}
+      DB_SSLMODE: ${DB_SSLMODE:-disable}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-insecure-secret-change-me}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
 
 volumes:
   postgres_data:

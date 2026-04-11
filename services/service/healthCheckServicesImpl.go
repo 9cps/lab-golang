@@ -1,28 +1,29 @@
 package services
 
 import (
-	"fmt"
+	"log"
 
-	"github.com/9cps/api-go-gin/repositories/interfaces"
+	repoInterfaces "github.com/9cps/api-go-gin/repositories/interfaces"
+	svcInterfaces "github.com/9cps/api-go-gin/services/interfaces"
 )
 
 type HealthCheckServiceImpl struct {
-	HealthCheckRepository interfaces.IHealthCheckRepository
+	HealthCheckRepository repoInterfaces.IHealthCheckRepository
 }
 
-func NewHealthCheckServiceImpl(healthCheckRepository interfaces.IHealthCheckRepository) interfaces.IHealthCheckRepository {
+// NewHealthCheckServiceImpl returns a HealthCheckServices (service layer)
+// rather than a repository interface — the previous return type was
+// semantically wrong even though it happened to share a method set.
+func NewHealthCheckServiceImpl(healthCheckRepository repoInterfaces.IHealthCheckRepository) svcInterfaces.HealthCheckServices {
 	return &HealthCheckServiceImpl{
 		HealthCheckRepository: healthCheckRepository,
 	}
 }
 
 func (s *HealthCheckServiceImpl) HealthCheckDB() bool {
-	statusDb := s.HealthCheckRepository.HealthCheckDB() // Call the function in the repository to open the database return true, false
-
-	if !statusDb {
-		fmt.Printf("Error connecting to the database: %v\n", statusDb)
-		return false // Return false to indicate a connection failure
+	if ok := s.HealthCheckRepository.HealthCheckDB(); !ok {
+		log.Println("health check: database connection failed")
+		return false
 	}
-
-	return statusDb // Return true to indicate a successful connection
+	return true
 }

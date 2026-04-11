@@ -31,5 +31,7 @@ func NewRouter(healthCheckController *controllers.HealthCheckController, expense
 	expensesRouter.PUT("/CreateExpensesDetail", expensesController.CreateExpensesDetail)
 	expensesRouter.GET("/GetListMoneyCard", expensesController.GetListMoneyCard)
 	expensesRouter.POST("/GetListMoneyCardDetail", expensesController.GetListMoneyCardDetail)
+	expensesRouter.PUT("/UpdateExpensesDetail", expensesController.UpdateExpensesDetail)
+	expensesRouter.DELETE("/DeleteExpensesDetail", expensesController.DeleteExpensesDetail)
 	return router
 }

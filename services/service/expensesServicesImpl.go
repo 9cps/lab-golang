@@ -81,3 +81,11 @@ func (s *ExpensesServiceImpl) GetListMoneyCardDetail(req req_dtos.GetExpensesDet
 	result := s.ExpensesRepository.GetListMoneyCardDetail(req)
 	return result
 }
+
+func (s *ExpensesServiceImpl) UpdateExpensesDetail(req req_dtos.UpdateExpensesDetail) models.ExpensesDetail {
+	return s.ExpensesRepository.UpdateExpensesDetail(req)
+}
+
+func (s *ExpensesServiceImpl) DeleteExpensesDetail(req req_dtos.DeleteExpensesDetailById) bool {
+	return s.ExpensesRepository.DeleteExpensesDetail(req)
+}

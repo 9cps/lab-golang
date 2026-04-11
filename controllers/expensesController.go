@@ -1,11 +1,11 @@
 package controllers
 
 import (
+	"net/http"
 	"time"
 
 	req_dtos "github.com/9cps/api-go-gin/dtos/request"
 	res_dtos "github.com/9cps/api-go-gin/dtos/response"
-	"github.com/9cps/api-go-gin/helper"
 	"github.com/9cps/api-go-gin/models"
 	"github.com/9cps/api-go-gin/services/interfaces"
 	"github.com/gin-gonic/gin"
@@ -33,28 +33,24 @@ func NewExpensesController(services interfaces.IExpensesServices) *ExpensesContr
 //
 //	@Router		/Expenses/CreateExpenses [PUT]
 func (c *ExpensesController) CreateExpenses(ctx *gin.Context) {
-
 	req := req_dtos.Expenses{}
-	err := ctx.ShouldBindJSON(&req)
-	helper.ErrorPanic(err)
-
-	result := c.expensesServices.InsertExpenses(req)
-	if result == (models.Expenses{}) {
-		ctx.JSON(400, gin.H{
-			"error": "Error creating expenses",
-		})
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	response := res_dtos.DefaultResponse{
+	result := c.expensesServices.InsertExpenses(req)
+	if result == (models.Expenses{}) {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error creating expenses"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, res_dtos.DefaultResponse{
 		Status:  string(res_dtos.Success),
 		Message: "Expenses created successfully",
 		Date:    time.Now().Format("02/01/2006 15:04:05"),
 		Data:    result,
-	}
-
-	ctx.Header("Content-Type", "application/json")
-	ctx.JSON(200, response)
+	})
 }
 
 // CreateExpensesDetail godoc
@@ -70,25 +66,23 @@ func (c *ExpensesController) CreateExpenses(ctx *gin.Context) {
 //	@Router		/Expenses/CreateExpensesDetail [PUT]
 func (c *ExpensesController) CreateExpensesDetail(ctx *gin.Context) {
 	req := req_dtos.ExpensesDetail{}
-	err := ctx.ShouldBindJSON(&req)
-	helper.ErrorPanic(err)
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	result := c.expensesServices.InsertExpensesDetail(req)
 	if result == (models.ExpensesDetail{}) {
-		ctx.JSON(400, gin.H{
-			"error": "Error creating expenses detail",
-		})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error creating expenses detail"})
 		return
 	}
-	response := res_dtos.DefaultResponse{
+
+	ctx.JSON(http.StatusOK, res_dtos.DefaultResponse{
 		Status:  string(res_dtos.Success),
 		Message: "Expenses detail created successfully",
 		Date:    time.Now().Format("02/01/2006 15:04:05"),
 		Data:    result,
-	}
-
-	ctx.Header("Content-Type", "application/json")
-	ctx.JSON(200, response)
+	})
 }
 
 // GetListMoneyCard godoc
@@ -102,17 +96,12 @@ func (c *ExpensesController) CreateExpensesDetail(ctx *gin.Context) {
 //
 //	@Router		/Expenses/GetListMoneyCard [GET]
 func (c *ExpensesController) GetListMoneyCard(ctx *gin.Context) {
-
-	// Find All MoneyCard
 	listData := c.expensesServices.GetListMoneyCard()
-	response := res_dtos.DefaultResponse{
+	ctx.JSON(http.StatusOK, res_dtos.DefaultResponse{
 		Status: string(res_dtos.Success),
 		Date:   time.Now().Format("02/01/2006 15:04:05"),
-		Data:   listData, // Data retrieved from the SQL query
-	}
-	// Return data
-	ctx.Header("Content-Type", "application/json")
-	ctx.JSON(200, response)
+		Data:   listData,
+	})
 }
 
 // GetListMoneyCardDetail godoc
@@ -128,17 +117,77 @@ func (c *ExpensesController) GetListMoneyCard(ctx *gin.Context) {
 //	@Router		/Expenses/GetListMoneyCardDetail [POST]
 func (c *ExpensesController) GetListMoneyCardDetail(ctx *gin.Context) {
 	req := req_dtos.GetExpensesDetailById{}
-	err := ctx.ShouldBindJSON(&req)
-	helper.ErrorPanic(err)
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-	// Find All MoneyCard
 	listData := c.expensesServices.GetListMoneyCardDetail(req)
-	response := res_dtos.DefaultResponse{
+	ctx.JSON(http.StatusOK, res_dtos.DefaultResponse{
 		Status: string(res_dtos.Success),
 		Date:   time.Now().Format("02/01/2006 15:04:05"),
-		Data:   listData, // Data retrieved from the SQL query
+		Data:   listData,
+	})
+}
+
+// UpdateExpensesDetail godoc
+//
+//	@Summary	Update expenses detail
+//	@Tags		Expenses
+//	@Accept		json
+//	@Produce	json
+//	@Param		req_dtos.UpdateExpensesDetail	body		req_dtos.UpdateExpensesDetail	true	"UpdateExpensesDetail data"
+//
+//	@Success	200								{object}	res_dtos.DefaultResponse
+//
+//	@Router		/Expenses/UpdateExpensesDetail [PUT]
+func (c *ExpensesController) UpdateExpensesDetail(ctx *gin.Context) {
+	req := req_dtos.UpdateExpensesDetail{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
-	// Return data
-	ctx.Header("Content-Type", "application/json")
-	ctx.JSON(200, response)
+
+	result := c.expensesServices.UpdateExpensesDetail(req)
+	if result == (models.ExpensesDetail{}) {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error updating expenses detail"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, res_dtos.DefaultResponse{
+		Status:  string(res_dtos.Success),
+		Message: "Expenses detail updated successfully",
+		Date:    time.Now().Format("02/01/2006 15:04:05"),
+		Data:    result,
+	})
+}
+
+// DeleteExpensesDetail godoc
+//
+//	@Summary	Delete expenses detail
+//	@Tags		Expenses
+//	@Accept		json
+//	@Produce	json
+//	@Param		req_dtos.DeleteExpensesDetailById	body		req_dtos.DeleteExpensesDetailById	true	"DeleteExpensesDetail data"
+//
+//	@Success	200									{object}	res_dtos.DefaultResponse
+//
+//	@Router		/Expenses/DeleteExpensesDetail [DELETE]
+func (c *ExpensesController) DeleteExpensesDetail(ctx *gin.Context) {
+	req := req_dtos.DeleteExpensesDetailById{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if ok := c.expensesServices.DeleteExpensesDetail(req); !ok {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error deleting expenses detail"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, res_dtos.DefaultResponse{
+		Status:  string(res_dtos.Success),
+		Message: "Expenses detail deleted successfully",
+		Date:    time.Now().Format("02/01/2006 15:04:05"),
+	})
 }

@@ -16,3 +16,14 @@ type ExpensesDetail struct {
 type GetExpensesDetailById struct {
 	Id int `json:"id"`
 }
+
+type UpdateExpensesDetail struct {
+	Id             uint    `json:"id"`
+	ExpensesType   string  `json:"expensesType"`
+	ExpensesDesc   string  `json:"expensesDesc"`
+	ExpensesAmount float32 `json:"expensesAmount"`
+}
+
+type DeleteExpensesDetailById struct {
+	Id uint `json:"id"`
+}
