@@ -12,13 +12,8 @@ RUN go mod download
 
 COPY . .
 
-# Generate swagger docs from expenses-service source, then compile both binaries
-RUN go install github.com/swaggo/swag/cmd/swag@latest && \
-    swag fmt && \
-    swag init --generalInfo services/expenses-service/cmd/api/main.go \
-              --dir services/expenses-service \
-              --output docs && \
-    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" \
+# Build both binaries (docs/ are pre-generated and copied from source)
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" \
         -o /app/expenses-server ./services/expenses-service/cmd/api/ && \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" \
         -o /app/migrate ./services/expenses-service/cmd/migrate/

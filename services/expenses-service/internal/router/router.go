@@ -17,7 +17,14 @@ func NewRouter(
 ) *gin.Engine {
 	r := gin.Default()
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	swaggerHandler := ginSwagger.WrapHandler(swaggerFiles.Handler)
+	r.GET("/swagger/*any", func(ctx *gin.Context) {
+		if ctx.Param("any") == "/" {
+			ctx.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
+			return
+		}
+		swaggerHandler(ctx)
+	})
 	r.GET("", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, "expenses-service")
 	})
