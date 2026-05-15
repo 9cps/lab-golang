@@ -1,0 +1,39 @@
+# syntax=docker/dockerfile:1
+
+# ── Build stage ───────────────────────────────────────────────────────────────
+FROM golang:1.23-alpine AS builder
+
+RUN apk add --no-cache ca-certificates tzdata git
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+# Generate swagger docs from expenses-service source, then compile both binaries
+RUN go install github.com/swaggo/swag/cmd/swag@latest && \
+    swag fmt && \
+    swag init --generalInfo services/expenses-service/cmd/api/main.go \
+              --dir services/expenses-service \
+              --output docs && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" \
+        -o /app/expenses-server ./services/expenses-service/cmd/api/ && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" \
+        -o /app/migrate ./services/expenses-service/cmd/migrate/
+
+# ── Runtime stage ─────────────────────────────────────────────────────────────
+FROM alpine:3.19
+
+RUN apk add --no-cache ca-certificates tzdata
+
+WORKDIR /app
+
+COPY --from=builder /app/expenses-server ./expenses-server
+COPY --from=builder /app/migrate         ./migrate
+COPY --from=builder /app/docs            ./docs
+
+EXPOSE 8081
+
+CMD ["./expenses-server"]

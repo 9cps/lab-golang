@@ -18,35 +18,52 @@ services:
       retries: 5
       start_period: 10s
 
-  api:
+  expenses-service:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: lab_golang_api
+      dockerfile: Dockerfile.expenses
+    container_name: lab_golang_expenses_service
     restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "8081:8081"
     working_dir: /app
     command:
       - sh
       - -c
       - |
-        go mod tidy && \
-        go run migrate/migrateSchema.go && \
-        swag fmt && \
-        swag init && \
-        go run main.go
+        ./migrate && ./expenses-server
     environment:
-      SERVER_ADDR: ":8080"
+      SERVER_ADDR: ":8081"
       SERVER_NAME: postgres
       SERVER_PORT: 5432
       DATABASE_NAME: ${DATABASE_NAME:-lab-golang}
       USER_DB: ${USER_DB:-root}
       PASSWORD_DB: ${PASSWORD_DB:-root}
       DB_SSLMODE: ${DB_SSLMODE:-disable}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: lab_golang_api_gateway
+    restart: unless-stopped
+    depends_on:
+      expenses-service:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_ADDR: ":8080"
+      EXPENSES_SERVICE_URL: "http://expenses-service:8081"
       JWT_SECRET: ${JWT_SECRET:-dev-only-insecure-secret-change-me}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
 
