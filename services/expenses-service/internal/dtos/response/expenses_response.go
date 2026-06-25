@@ -2,39 +2,39 @@ package dtos
 
 import "time"
 
-// ExpensesCard is the response type for GetListMoneyCard.
+// ExpensesCard is the response payload for GetListMoneyCard.
+// It is nested under the top-level `data` field of DefaultResponse so the UI
+// reads it as `data.Data` and `data.TotalBalance`.
 type ExpensesCard struct {
-	TotalBalance         float64    `json:"totalBalance"`
-	PercentBalance       float64    `json:"percentBalance"`
-	PercentSpendingMonth float64    `json:"percentSpendingMonth"`
-	Data                 []Expenses `json:"data"`
+	Data         []Expenses `json:"Data"`
+	TotalBalance float64    `json:"TotalBalance"`
 }
 
-// Expenses is used as an element inside ExpensesCard.
+// Expenses is a single monthly expense card element inside ExpensesCard.
 type Expenses struct {
-	ID              uint      `json:"id"`
-	CreatedAt       time.Time `json:"createdAt"`
-	ExpensesMonth   int32     `json:"expensesMonth"`
-	ExpensesYear    int32     `json:"expensesYear"`
-	ExpensesMoney   float64   `json:"expensesMoney"`
-	ExpensesBalance float64   `json:"expensesBalance"`
-	TotalSpending   float64   `json:"totalSpending"`
+	ID              uint    `json:"ID"`
+	ExpensesMonth   int32   `json:"ExpensesMonth"`
+	ExpensesYear    int32   `json:"ExpensesYear"`
+	ExpensesBalance float64 `json:"ExpensesBalance"`
+	ExpensesMoney   float64 `json:"ExpensesMoney"`
+	TotalSpending   float64 `json:"TotalSpending"`
 }
 
 // ExpensesResponse is the response DTO for a single Expenses record (create).
 type ExpensesResponse struct {
-	ID              uint    `json:"id"`
-	ExpensesMonth   int32   `json:"expensesMonth"`
-	ExpensesYear    int32   `json:"expensesYear"`
-	ExpensesMoney   float64 `json:"expensesMoney"`
-	ExpensesBalance float64 `json:"expensesBalance"`
+	ID              uint    `json:"ID"`
+	ExpensesMonth   int32   `json:"ExpensesMonth"`
+	ExpensesYear    int32   `json:"ExpensesYear"`
+	ExpensesMoney   float64 `json:"ExpensesMoney"`
+	ExpensesBalance float64 `json:"ExpensesBalance"`
 }
 
 // ExpensesDetailResponse is the response DTO for a single ExpensesDetail record.
 type ExpensesDetailResponse struct {
-	ID             uint    `json:"id"`
-	ExpensesId     int32   `json:"expensesId"`
-	ExpensesType   string  `json:"expensesType"`
-	ExpensesDesc   string  `json:"expensesDesc"`
-	ExpensesAmount float64 `json:"expensesAmount"`
+	ID             uint      `json:"ID"`
+	ExpensesId     int32     `json:"ExpensesId"`
+	ExpensesType   string    `json:"ExpensesType"`
+	ExpensesDesc   string    `json:"ExpensesDesc"`
+	ExpensesAmount float64   `json:"ExpensesAmount"`
+	CreatedAt      time.Time `json:"CreatedAt"`
 }

@@ -72,6 +72,7 @@ func (s *expensesService) InsertExpensesDetail(ctx context.Context, r req.Expens
 		ExpensesType:   created.ExpensesType,
 		ExpensesDesc:   created.ExpensesDesc,
 		ExpensesAmount: created.ExpensesAmount,
+		CreatedAt:      created.CreatedAt,
 	}, nil
 }
 
@@ -87,7 +88,6 @@ func (s *expensesService) GetListMoneyCard(ctx context.Context) (res.ExpensesCar
 		totalBalance += e.ExpensesBalance
 		data = append(data, res.Expenses{
 			ID:              e.ID,
-			CreatedAt:       e.CreatedAt,
 			ExpensesMonth:   e.ExpensesMonth,
 			ExpensesYear:    e.ExpensesYear,
 			ExpensesMoney:   e.ExpensesMoney,
@@ -111,12 +111,13 @@ func (s *expensesService) GetListMoneyCardDetail(ctx context.Context, r req.GetE
 			ExpensesType:   d.ExpensesType,
 			ExpensesDesc:   d.ExpensesDesc,
 			ExpensesAmount: d.ExpensesAmount,
+			CreatedAt:      d.CreatedAt,
 		})
 	}
 	return result, nil
 }
 
-func (s *expensesService) UpdateExpensesDetail(ctx context.Context, r req.UpdateExpensesDetail) (res.ExpensesDetailResponse, error) {
+func (s *expensesService) UpdateExpensesDetail(ctx context.Context, r req.ExpensesDetail) (res.ExpensesDetailResponse, error) {
 	updated, err := s.expensesRepo.UpdateExpensesDetail(ctx, r)
 	if err != nil {
 		return res.ExpensesDetailResponse{}, fmt.Errorf("update expenses detail: %w", err)
@@ -127,6 +128,7 @@ func (s *expensesService) UpdateExpensesDetail(ctx context.Context, r req.Update
 		ExpensesType:   updated.ExpensesType,
 		ExpensesDesc:   updated.ExpensesDesc,
 		ExpensesAmount: updated.ExpensesAmount,
+		CreatedAt:      updated.CreatedAt,
 	}, nil
 }
 

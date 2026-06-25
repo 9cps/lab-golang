@@ -39,7 +39,7 @@ func (m *mockExpensesService) GetListMoneyCardDetail(_ context.Context, r req.Ge
 	args := m.Called(r)
 	return args.Get(0).([]res.ExpensesDetailResponse), args.Error(1)
 }
-func (m *mockExpensesService) UpdateExpensesDetail(_ context.Context, r req.UpdateExpensesDetail) (res.ExpensesDetailResponse, error) {
+func (m *mockExpensesService) UpdateExpensesDetail(_ context.Context, r req.ExpensesDetail) (res.ExpensesDetailResponse, error) {
 	args := m.Called(r)
 	return args.Get(0).(res.ExpensesDetailResponse), args.Error(1)
 }
@@ -78,9 +78,9 @@ func TestCreateExpenses_Success(t *testing.T) {
 		Return(res.ExpensesResponse{ExpensesMoney: 1000, ExpensesBalance: 1000}, nil)
 
 	h, router := setupTest(m)
-	router.POST("/expenses", h.CreateExpenses)
+	router.PUT("/expenses", h.CreateExpenses)
 
-	w := performRequest(router, http.MethodPost, "/expenses", body)
+	w := performRequest(router, http.MethodPut, "/expenses", body)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 	var resp res.DefaultResponse
@@ -92,9 +92,9 @@ func TestCreateExpenses_Success(t *testing.T) {
 func TestCreateExpenses_InvalidJSON(t *testing.T) {
 	m := new(mockExpensesService)
 	h, router := setupTest(m)
-	router.POST("/expenses", h.CreateExpenses)
+	router.PUT("/expenses", h.CreateExpenses)
 
-	r := httptest.NewRequest(http.MethodPost, "/expenses", bytes.NewBufferString("{bad json"))
+	r := httptest.NewRequest(http.MethodPut, "/expenses", bytes.NewBufferString("{bad json"))
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, r)
@@ -110,17 +110,17 @@ func TestCreateExpenses_ServiceError(t *testing.T) {
 		Return(res.ExpensesResponse{}, errors.New("db error"))
 
 	h, router := setupTest(m)
-	router.POST("/expenses", h.CreateExpenses)
+	router.PUT("/expenses", h.CreateExpenses)
 
-	w := performRequest(router, http.MethodPost, "/expenses", body)
+	w := performRequest(router, http.MethodPut, "/expenses", body)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 	m.AssertExpectations(t)
 }
 
-// ---- CreateExpensesDetail ----
+// ---- UpsertExpensesDetail (create path: ID == 0) ----
 
-func TestCreateExpensesDetail_Success(t *testing.T) {
+func TestUpsertExpensesDetail_Create_Success(t *testing.T) {
 	m := new(mockExpensesService)
 	body := req.ExpensesDetail{ExpensesId: 1, ExpensesType: "food", ExpensesDesc: "lunch", ExpensesAmount: 120}
 	m.On("InsertExpensesDetail", body).
@@ -132,41 +132,82 @@ func TestCreateExpensesDetail_Success(t *testing.T) {
 		}, nil)
 
 	h, router := setupTest(m)
-	router.POST("/expenses/details", h.CreateExpensesDetail)
+	router.PUT("/expenses/details", h.UpsertExpensesDetail)
 
-	w := performRequest(router, http.MethodPost, "/expenses/details", body)
+	w := performRequest(router, http.MethodPut, "/expenses/details", body)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 	m.AssertExpectations(t)
+	m.AssertNotCalled(t, "UpdateExpensesDetail")
 }
 
-func TestCreateExpensesDetail_ServiceError(t *testing.T) {
+func TestUpsertExpensesDetail_Create_ServiceError(t *testing.T) {
 	m := new(mockExpensesService)
 	body := req.ExpensesDetail{ExpensesId: 1, ExpensesType: "food", ExpensesAmount: 120}
 	m.On("InsertExpensesDetail", body).
 		Return(res.ExpensesDetailResponse{}, errors.New("db error"))
 
 	h, router := setupTest(m)
-	router.POST("/expenses/details", h.CreateExpensesDetail)
+	router.PUT("/expenses/details", h.UpsertExpensesDetail)
 
-	w := performRequest(router, http.MethodPost, "/expenses/details", body)
+	w := performRequest(router, http.MethodPut, "/expenses/details", body)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 	m.AssertExpectations(t)
 }
 
-func TestCreateExpensesDetail_InvalidJSON(t *testing.T) {
+// ---- UpsertExpensesDetail (update path: ID != 0) ----
+
+func TestUpsertExpensesDetail_Update_Success(t *testing.T) {
+	m := new(mockExpensesService)
+	body := req.ExpensesDetail{ID: 5, ExpensesId: 1, ExpensesType: "food", ExpensesDesc: "dinner", ExpensesAmount: 250}
+	m.On("UpdateExpensesDetail", body).
+		Return(res.ExpensesDetailResponse{
+			ID:             body.ID,
+			ExpensesId:     body.ExpensesId,
+			ExpensesType:   body.ExpensesType,
+			ExpensesDesc:   body.ExpensesDesc,
+			ExpensesAmount: body.ExpensesAmount,
+		}, nil)
+
+	h, router := setupTest(m)
+	router.PUT("/expenses/details", h.UpsertExpensesDetail)
+
+	w := performRequest(router, http.MethodPut, "/expenses/details", body)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	m.AssertExpectations(t)
+	m.AssertNotCalled(t, "InsertExpensesDetail")
+}
+
+func TestUpsertExpensesDetail_Update_ServiceError(t *testing.T) {
+	m := new(mockExpensesService)
+	body := req.ExpensesDetail{ID: 5, ExpensesId: 1, ExpensesType: "food", ExpensesAmount: 250}
+	m.On("UpdateExpensesDetail", body).
+		Return(res.ExpensesDetailResponse{}, errors.New("not found"))
+
+	h, router := setupTest(m)
+	router.PUT("/expenses/details", h.UpsertExpensesDetail)
+
+	w := performRequest(router, http.MethodPut, "/expenses/details", body)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	m.AssertExpectations(t)
+}
+
+func TestUpsertExpensesDetail_InvalidJSON(t *testing.T) {
 	m := new(mockExpensesService)
 	h, router := setupTest(m)
-	router.POST("/expenses/details", h.CreateExpensesDetail)
+	router.PUT("/expenses/details", h.UpsertExpensesDetail)
 
-	r := httptest.NewRequest(http.MethodPost, "/expenses/details", bytes.NewBufferString("{"))
+	r := httptest.NewRequest(http.MethodPut, "/expenses/details", bytes.NewBufferString("{"))
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, r)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	m.AssertNotCalled(t, "InsertExpensesDetail")
+	m.AssertNotCalled(t, "UpdateExpensesDetail")
 }
 
 // ---- GetListMoneyCard ----
@@ -174,7 +215,7 @@ func TestCreateExpensesDetail_InvalidJSON(t *testing.T) {
 func TestGetListMoneyCard_Success(t *testing.T) {
 	m := new(mockExpensesService)
 	m.On("GetListMoneyCard").
-		Return(res.ExpensesCard{TotalBalance: 500, PercentBalance: 50}, nil)
+		Return(res.ExpensesCard{TotalBalance: 500}, nil)
 
 	h, router := setupTest(m)
 	router.GET("/expenses", h.GetListMoneyCard)
@@ -194,104 +235,36 @@ func TestGetListMoneyCardDetail_Success(t *testing.T) {
 		Return([]res.ExpensesDetailResponse{{ExpensesId: 10, ExpensesType: "food"}}, nil)
 
 	h, router := setupTest(m)
-	router.GET("/expenses/details", h.GetListMoneyCardDetail)
+	router.POST("/expenses/details", h.GetListMoneyCardDetail)
 
-	w := performRequest(router, http.MethodGet, "/expenses/details?id=10", nil)
+	w := performRequest(router, http.MethodPost, "/expenses/details", r)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	m.AssertExpectations(t)
 }
 
-func TestGetListMoneyCardDetail_MissingQueryParam(t *testing.T) {
+func TestGetListMoneyCardDetail_MissingBody(t *testing.T) {
 	m := new(mockExpensesService)
 	h, router := setupTest(m)
-	router.GET("/expenses/details", h.GetListMoneyCardDetail)
+	router.POST("/expenses/details", h.GetListMoneyCardDetail)
 
-	w := performRequest(router, http.MethodGet, "/expenses/details", nil)
+	w := performRequest(router, http.MethodPost, "/expenses/details", nil)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	m.AssertNotCalled(t, "GetListMoneyCardDetail")
-}
-
-// ---- UpdateExpensesDetail ----
-
-func TestUpdateExpensesDetail_Success(t *testing.T) {
-	m := new(mockExpensesService)
-	want := req.UpdateExpensesDetail{Id: 1, ExpensesType: "food", ExpensesDesc: "dinner", ExpensesAmount: 250}
-	m.On("UpdateExpensesDetail", want).
-		Return(res.ExpensesDetailResponse{
-			ExpensesType:   want.ExpensesType,
-			ExpensesDesc:   want.ExpensesDesc,
-			ExpensesAmount: want.ExpensesAmount,
-		}, nil)
-
-	h, router := setupTest(m)
-	router.PUT("/expenses/details/:id", h.UpdateExpensesDetail)
-
-	w := performRequest(router, http.MethodPut, "/expenses/details/1", req.UpdateExpensesDetail{
-		ExpensesType:   "food",
-		ExpensesDesc:   "dinner",
-		ExpensesAmount: 250,
-	})
-
-	assert.Equal(t, http.StatusOK, w.Code)
-	m.AssertExpectations(t)
-}
-
-func TestUpdateExpensesDetail_ServiceError(t *testing.T) {
-	m := new(mockExpensesService)
-	want := req.UpdateExpensesDetail{Id: 1, ExpensesType: "food", ExpensesAmount: 250}
-	m.On("UpdateExpensesDetail", want).
-		Return(res.ExpensesDetailResponse{}, errors.New("not found"))
-
-	h, router := setupTest(m)
-	router.PUT("/expenses/details/:id", h.UpdateExpensesDetail)
-
-	w := performRequest(router, http.MethodPut, "/expenses/details/1", req.UpdateExpensesDetail{
-		ExpensesType:   "food",
-		ExpensesAmount: 250,
-	})
-
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	m.AssertExpectations(t)
-}
-
-func TestUpdateExpensesDetail_InvalidJSON(t *testing.T) {
-	m := new(mockExpensesService)
-	h, router := setupTest(m)
-	router.PUT("/expenses/details/:id", h.UpdateExpensesDetail)
-
-	r := httptest.NewRequest(http.MethodPut, "/expenses/details/1", bytes.NewBufferString("{"))
-	r.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, r)
-
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	m.AssertNotCalled(t, "UpdateExpensesDetail")
-}
-
-func TestUpdateExpensesDetail_InvalidPathID(t *testing.T) {
-	m := new(mockExpensesService)
-	h, router := setupTest(m)
-	router.PUT("/expenses/details/:id", h.UpdateExpensesDetail)
-
-	w := performRequest(router, http.MethodPut, "/expenses/details/abc", req.UpdateExpensesDetail{ExpensesType: "food", ExpensesAmount: 100})
-
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-	m.AssertNotCalled(t, "UpdateExpensesDetail")
 }
 
 // ---- DeleteExpensesDetail ----
 
 func TestDeleteExpensesDetail_Success(t *testing.T) {
 	m := new(mockExpensesService)
-	r := req.DeleteExpensesDetailById{Id: 1}
+	r := req.DeleteExpensesDetailById{ID: 1, ExpensesId: 10}
 	m.On("DeleteExpensesDetail", r).Return(true, nil)
 
 	h, router := setupTest(m)
-	router.DELETE("/expenses/details/:id", h.DeleteExpensesDetail)
+	router.DELETE("/expenses/details", h.DeleteExpensesDetail)
 
-	w := performRequest(router, http.MethodDelete, "/expenses/details/1", nil)
+	w := performRequest(router, http.MethodDelete, "/expenses/details", r)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	m.AssertExpectations(t)
@@ -299,24 +272,24 @@ func TestDeleteExpensesDetail_Success(t *testing.T) {
 
 func TestDeleteExpensesDetail_ServiceError(t *testing.T) {
 	m := new(mockExpensesService)
-	r := req.DeleteExpensesDetailById{Id: 1}
+	r := req.DeleteExpensesDetailById{ID: 1, ExpensesId: 10}
 	m.On("DeleteExpensesDetail", r).Return(false, errors.New("not found"))
 
 	h, router := setupTest(m)
-	router.DELETE("/expenses/details/:id", h.DeleteExpensesDetail)
+	router.DELETE("/expenses/details", h.DeleteExpensesDetail)
 
-	w := performRequest(router, http.MethodDelete, "/expenses/details/1", nil)
+	w := performRequest(router, http.MethodDelete, "/expenses/details", r)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 	m.AssertExpectations(t)
 }
 
-func TestDeleteExpensesDetail_InvalidPathID(t *testing.T) {
+func TestDeleteExpensesDetail_MissingBody(t *testing.T) {
 	m := new(mockExpensesService)
 	h, router := setupTest(m)
-	router.DELETE("/expenses/details/:id", h.DeleteExpensesDetail)
+	router.DELETE("/expenses/details", h.DeleteExpensesDetail)
 
-	w := performRequest(router, http.MethodDelete, "/expenses/details/abc", nil)
+	w := performRequest(router, http.MethodDelete, "/expenses/details", nil)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	m.AssertNotCalled(t, "DeleteExpensesDetail")

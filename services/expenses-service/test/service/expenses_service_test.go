@@ -35,7 +35,7 @@ func (m *mockExpensesRepo) GetListMoneyCardDetail(ctx context.Context, r req.Get
 	args := m.Called(ctx, r)
 	return args.Get(0).([]model.ExpensesDetail), args.Error(1)
 }
-func (m *mockExpensesRepo) UpdateExpensesDetail(ctx context.Context, r req.UpdateExpensesDetail) (model.ExpensesDetail, error) {
+func (m *mockExpensesRepo) UpdateExpensesDetail(ctx context.Context, r req.ExpensesDetail) (model.ExpensesDetail, error) {
 	args := m.Called(ctx, r)
 	return args.Get(0).(model.ExpensesDetail), args.Error(1)
 }
@@ -164,7 +164,7 @@ func TestService_GetListMoneyCardDetail(t *testing.T) {
 // ---- UpdateExpensesDetail ----
 
 func TestService_UpdateExpensesDetail(t *testing.T) {
-	r := req.UpdateExpensesDetail{Id: 1, ExpensesType: "bill", ExpensesAmount: 300}
+	r := req.ExpensesDetail{ID: 1, ExpensesId: 10, ExpensesType: "bill", ExpensesAmount: 300}
 	repo := new(mockExpensesRepo)
 	repo.On("UpdateExpensesDetail", testCtx, r).Return(model.ExpensesDetail{
 		ExpensesType:   r.ExpensesType,
@@ -183,7 +183,7 @@ func TestService_UpdateExpensesDetail(t *testing.T) {
 // ---- DeleteExpensesDetail ----
 
 func TestService_DeleteExpensesDetail_True(t *testing.T) {
-	r := req.DeleteExpensesDetailById{Id: 1}
+	r := req.DeleteExpensesDetailById{ID: 1}
 	repo := new(mockExpensesRepo)
 	repo.On("DeleteExpensesDetail", testCtx, r).Return(true, nil)
 
@@ -196,7 +196,7 @@ func TestService_DeleteExpensesDetail_True(t *testing.T) {
 }
 
 func TestService_DeleteExpensesDetail_Error(t *testing.T) {
-	r := req.DeleteExpensesDetailById{Id: 1}
+	r := req.DeleteExpensesDetailById{ID: 1}
 	repo := new(mockExpensesRepo)
 	repo.On("DeleteExpensesDetail", testCtx, r).Return(false, errors.New("not found"))
 

@@ -1,6 +1,7 @@
 package router
 
 import (
+	"log"
 	"net/http"
 	"os"
 
@@ -43,16 +44,19 @@ func NewRouter() *gin.Engine {
 	health.GET("", handler)
 	health.GET("/database", handler)
 
-	// Expenses — protected by JWT; gateway validates token, then proxies
+	// Expenses — protected by JWT; gateway validates token, then proxies.
+	// JWT enforcement can be toggled off for local development via AUTH_ENABLED.
+	if !middleware.AuthEnabled() {
+		log.Println("⚠️  WARNING: JWT auth is DISABLED (AUTH_ENABLED=false) — /expenses is open")
+	}
 	expenses := api.Group("/expenses")
 	expenses.Use(middleware.AuthMiddleware())
 	{
-		expenses.POST("", handler)
 		expenses.GET("", handler)
+		expenses.PUT("", handler)
 		expenses.POST("/details", handler)
-		expenses.GET("/details", handler)
-		expenses.PUT("/details/:id", handler)
-		expenses.DELETE("/details/:id", handler)
+		expenses.PUT("/details", handler)
+		expenses.DELETE("/details", handler)
 	}
 
 	return router

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	req "github.com/9cps/api-go-gin/services/expenses-service/internal/dtos/request"
@@ -13,10 +12,9 @@ import (
 
 type ExpensesHandler interface {
 	CreateExpenses(ctx *gin.Context)
-	CreateExpensesDetail(ctx *gin.Context)
 	GetListMoneyCard(ctx *gin.Context)
 	GetListMoneyCardDetail(ctx *gin.Context)
-	UpdateExpensesDetail(ctx *gin.Context)
+	UpsertExpensesDetail(ctx *gin.Context)
 	DeleteExpensesDetail(ctx *gin.Context)
 }
 
@@ -30,16 +28,16 @@ func NewExpensesHandler(svc interfaces.ExpensesService) ExpensesHandler {
 
 // CreateExpenses godoc
 //
-//	@Summary	Create expenses
+//	@Summary	Create a monthly expense card
 //	@Tags		Expenses
 //	@Accept		json
 //	@Produce	json
-//	@Param		body	body		req.Expenses	true	"Expense data"
+//	@Param		body	body		req.Expenses	true	"Expense card data"
 //	@Success	201		{object}	res.DefaultResponse
 //	@Failure	400		{object}	gin.H
 //	@Failure	500		{object}	gin.H
 //	@Security	BearerAuth
-//	@Router		/expenses [post]
+//	@Router		/expenses [put]
 func (h *expensesHandler) CreateExpenses(ctx *gin.Context) {
 	var r req.Expenses
 	if err := ctx.ShouldBindJSON(&r); err != nil {
@@ -56,39 +54,6 @@ func (h *expensesHandler) CreateExpenses(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, res.DefaultResponse{
 		Status:  string(res.Success),
 		Message: "Expenses created successfully",
-		Date:    time.Now().Format("02/01/2006 15:04:05"),
-		Data:    result,
-	})
-}
-
-// CreateExpensesDetail godoc
-//
-//	@Summary	Create expenses detail
-//	@Tags		Expenses
-//	@Accept		json
-//	@Produce	json
-//	@Param		body	body		req.ExpensesDetail	true	"ExpensesDetail data"
-//	@Success	201		{object}	res.DefaultResponse
-//	@Failure	400		{object}	gin.H
-//	@Failure	500		{object}	gin.H
-//	@Security	BearerAuth
-//	@Router		/expenses/details [post]
-func (h *expensesHandler) CreateExpensesDetail(ctx *gin.Context) {
-	var r req.ExpensesDetail
-	if err := ctx.ShouldBindJSON(&r); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	result, err := h.expensesService.InsertExpensesDetail(ctx.Request.Context(), r)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error creating expenses detail"})
-		return
-	}
-
-	ctx.JSON(http.StatusCreated, res.DefaultResponse{
-		Status:  string(res.Success),
-		Message: "Expenses detail created successfully",
 		Date:    time.Now().Format("02/01/2006 15:04:05"),
 		Data:    result,
 	})
@@ -118,18 +83,19 @@ func (h *expensesHandler) GetListMoneyCard(ctx *gin.Context) {
 
 // GetListMoneyCardDetail godoc
 //
-//	@Summary	Get expense detail list by expense id
+//	@Summary	Get expense detail list by card id
 //	@Tags		Expenses
+//	@Accept		json
 //	@Produce	json
-//	@Param		id	query		int	true	"Expense ID"
-//	@Success	200	{object}	res.DefaultResponse
-//	@Failure	400	{object}	gin.H
-//	@Failure	500	{object}	gin.H
+//	@Param		body	body		req.GetExpensesDetailById	true	"Card id"
+//	@Success	200		{object}	res.DefaultResponse
+//	@Failure	400		{object}	gin.H
+//	@Failure	500		{object}	gin.H
 //	@Security	BearerAuth
-//	@Router		/expenses/details [get]
+//	@Router		/expenses/details [post]
 func (h *expensesHandler) GetListMoneyCardDetail(ctx *gin.Context) {
 	var r req.GetExpensesDetailById
-	if err := ctx.ShouldBindQuery(&r); err != nil {
+	if err := ctx.ShouldBindJSON(&r); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -146,39 +112,47 @@ func (h *expensesHandler) GetListMoneyCardDetail(ctx *gin.Context) {
 	})
 }
 
-// UpdateExpensesDetail godoc
+// UpsertExpensesDetail godoc
 //
-//	@Summary	Update expense detail
+//	@Summary	Create or update an expense detail
+//	@Description	Creates a new expense item when ID is omitted/zero, otherwise updates the existing item.
 //	@Tags		Expenses
 //	@Accept		json
 //	@Produce	json
-//	@Param		id		path		int						true	"ExpensesDetail ID"
-//	@Param		body	body		req.UpdateExpensesDetail	true	"Update data"
+//	@Param		body	body		req.ExpensesDetail	true	"ExpensesDetail data"
 //	@Success	200		{object}	res.DefaultResponse
 //	@Failure	400		{object}	gin.H
 //	@Failure	500		{object}	gin.H
 //	@Security	BearerAuth
-//	@Router		/expenses/details/{id} [put]
-func (h *expensesHandler) UpdateExpensesDetail(ctx *gin.Context) {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
-		return
-	}
-
-	var r req.UpdateExpensesDetail
+//	@Router		/expenses/details [put]
+func (h *expensesHandler) UpsertExpensesDetail(ctx *gin.Context) {
+	var r req.ExpensesDetail
 	if err := ctx.ShouldBindJSON(&r); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	r.Id = uint(id)
+
+	// ID == 0 means create, otherwise update the existing detail.
+	if r.ID == 0 {
+		result, err := h.expensesService.InsertExpensesDetail(ctx.Request.Context(), r)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error creating expenses detail"})
+			return
+		}
+		ctx.JSON(http.StatusCreated, res.DefaultResponse{
+			Status:  string(res.Success),
+			Message: "Expenses detail created successfully",
+			Date:    time.Now().Format("02/01/2006 15:04:05"),
+			Data:    result,
+		})
+		return
+	}
 
 	result, err := h.expensesService.UpdateExpensesDetail(ctx.Request.Context(), r)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating expenses detail"})
 		return
 	}
-
 	ctx.JSON(http.StatusOK, res.DefaultResponse{
 		Status:  string(res.Success),
 		Message: "Expenses detail updated successfully",
@@ -189,23 +163,24 @@ func (h *expensesHandler) UpdateExpensesDetail(ctx *gin.Context) {
 
 // DeleteExpensesDetail godoc
 //
-//	@Summary	Delete expense detail
+//	@Summary	Delete an expense detail
 //	@Tags		Expenses
+//	@Accept		json
 //	@Produce	json
-//	@Param		id	path		int	true	"ExpensesDetail ID"
-//	@Success	200	{object}	res.DefaultResponse
-//	@Failure	400	{object}	gin.H
-//	@Failure	500	{object}	gin.H
+//	@Param		body	body		req.DeleteExpensesDetailById	true	"ExpensesDetail id"
+//	@Success	200		{object}	res.DefaultResponse
+//	@Failure	400		{object}	gin.H
+//	@Failure	500		{object}	gin.H
 //	@Security	BearerAuth
-//	@Router		/expenses/details/{id} [delete]
+//	@Router		/expenses/details [delete]
 func (h *expensesHandler) DeleteExpensesDetail(ctx *gin.Context) {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+	var r req.DeleteExpensesDetailById
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	ok, err := h.expensesService.DeleteExpensesDetail(ctx.Request.Context(), req.DeleteExpensesDetailById{Id: uint(id)})
+	ok, err := h.expensesService.DeleteExpensesDetail(ctx.Request.Context(), r)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error deleting expenses detail"})
 		return

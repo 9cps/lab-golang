@@ -1,29 +1,35 @@
 package dtos
 
+// Expenses is the request body for creating a new monthly expense card.
+// Route: PUT /expenses
 type Expenses struct {
-	ExpensesMonth int32   `json:"expensesMonth" binding:"required"`
-	ExpensesYear  int32   `json:"expensesYear"  binding:"required"`
-	ExpensesMoney float64 `json:"expensesMoney"  binding:"required"`
+	ExpensesMonth int32   `json:"ExpensesMonth" binding:"required"`
+	ExpensesYear  int32   `json:"ExpensesYear"  binding:"required"`
+	ExpensesMoney float64 `json:"ExpensesMoney" binding:"required"`
 }
 
+// ExpensesDetail is the request body for creating OR updating an expense item.
+// Route: PUT /expenses/details
+//
+// When ID is zero the item is created; when ID is non-zero the existing item
+// is updated. ExpensesId identifies the parent card.
 type ExpensesDetail struct {
-	ExpensesId     int32   `json:"expensesId"     binding:"required"`
-	ExpensesType   string  `json:"expensesType"   binding:"required"`
-	ExpensesDesc   string  `json:"expensesDesc"`
-	ExpensesAmount float64 `json:"expensesAmount" binding:"required"`
+	ID             uint    `json:"ID"`
+	ExpensesId     int32   `json:"ExpensesId"     binding:"required"`
+	ExpensesType   string  `json:"ExpensesType"   binding:"required"`
+	ExpensesDesc   string  `json:"ExpensesDesc"`
+	ExpensesAmount float64 `json:"ExpensesAmount" binding:"required"`
 }
 
+// GetExpensesDetailById is the request body for listing the items of a card.
+// Route: POST /expenses/details
 type GetExpensesDetailById struct {
-	Id int `form:"id" json:"id" binding:"required"`
+	Id int `json:"id" binding:"required"`
 }
 
-type UpdateExpensesDetail struct {
-	Id             uint    `json:"id"`
-	ExpensesType   string  `json:"expensesType"   binding:"required"`
-	ExpensesDesc   string  `json:"expensesDesc"`
-	ExpensesAmount float64 `json:"expensesAmount" binding:"required"`
-}
-
+// DeleteExpensesDetailById is the request body for deleting an expense item.
+// Route: DELETE /expenses/details
 type DeleteExpensesDetailById struct {
-	Id uint `json:"id"`
+	ID         uint  `json:"ID" binding:"required"`
+	ExpensesId int32 `json:"ExpensesId"`
 }

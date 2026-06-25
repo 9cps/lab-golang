@@ -35,7 +35,16 @@ func CorsMiddleware() gin.HandlerFunc {
 			}
 		}
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		// Allow any request header. We reflect the headers the browser asks for
+		// in its preflight (Access-Control-Request-Headers) instead of using a
+		// literal "*", because "*" is interpreted literally when credentials are
+		// allowed and would reject real headers such as Authorization. When the
+		// preflight does not advertise any headers, fall back to "*".
+		if reqHeaders := c.GetHeader("Access-Control-Request-Headers"); reqHeaders != "" {
+			c.Header("Access-Control-Allow-Headers", reqHeaders)
+		} else {
+			c.Header("Access-Control-Allow-Headers", "*")
+		}
 
 		if c.Request.Method == http.MethodOptions {
 			c.AbortWithStatus(http.StatusNoContent)
@@ -46,10 +55,30 @@ func CorsMiddleware() gin.HandlerFunc {
 	}
 }
 
+// AuthEnabled reports whether JWT authentication should be enforced. It reads
+// the AUTH_ENABLED env var and defaults to true (auth on) when unset. The
+// values "false", "0", "no", and "off" (case-insensitive) disable auth.
+func AuthEnabled() bool {
+	switch strings.ToLower(strings.TrimSpace(os.Getenv("AUTH_ENABLED"))) {
+	case "false", "0", "no", "off":
+		return false
+	default:
+		return true
+	}
+}
+
 // AuthMiddleware verifies a JWT bearer token using the HS256 algorithm and a
 // secret loaded from the JWT_SECRET env var. It protects against alg-confusion
 // attacks by pinning the allowed signing methods.
+//
+// When AUTH_ENABLED is set to a falsy value the middleware becomes a no-op
+// pass-through, allowing every request without a token. This is intended for
+// local development only.
 func AuthMiddleware() gin.HandlerFunc {
+	if !AuthEnabled() {
+		return func(c *gin.Context) { c.Next() }
+	}
+
 	secret := []byte(os.Getenv("JWT_SECRET"))
 	if len(secret) == 0 {
 		panic("JWT_SECRET is not set")

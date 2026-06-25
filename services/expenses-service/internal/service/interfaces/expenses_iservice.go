@@ -12,6 +12,6 @@ type ExpensesService interface {
 	InsertExpensesDetail(ctx context.Context, r req.ExpensesDetail) (res.ExpensesDetailResponse, error)
 	GetListMoneyCard(ctx context.Context) (res.ExpensesCard, error)
 	GetListMoneyCardDetail(ctx context.Context, r req.GetExpensesDetailById) ([]res.ExpensesDetailResponse, error)
-	UpdateExpensesDetail(ctx context.Context, r req.UpdateExpensesDetail) (res.ExpensesDetailResponse, error)
+	UpdateExpensesDetail(ctx context.Context, r req.ExpensesDetail) (res.ExpensesDetailResponse, error)
 	DeleteExpensesDetail(ctx context.Context, r req.DeleteExpensesDetailById) (bool, error)
 }

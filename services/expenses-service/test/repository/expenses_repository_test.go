@@ -161,8 +161,9 @@ func TestRepo_UpdateExpensesDetail_Success(t *testing.T) {
 	mk.ExpectCommit()
 
 	r := repository.NewExpensesRepository(db)
-	got, err := r.UpdateExpensesDetail(testCtx, req.UpdateExpensesDetail{
-		Id:             1,
+	got, err := r.UpdateExpensesDetail(testCtx, req.ExpensesDetail{
+		ID:             1,
+		ExpensesId:     10,
 		ExpensesType:   "bill",
 		ExpensesDesc:   "electricity",
 		ExpensesAmount: 250,
@@ -183,7 +184,7 @@ func TestRepo_UpdateExpensesDetail_DetailNotFound(t *testing.T) {
 	mk.ExpectRollback()
 
 	r := repository.NewExpensesRepository(db)
-	got, err := r.UpdateExpensesDetail(testCtx, req.UpdateExpensesDetail{Id: 999})
+	got, err := r.UpdateExpensesDetail(testCtx, req.ExpensesDetail{ID: 999, ExpensesId: 10, ExpensesType: "x", ExpensesAmount: 1})
 
 	assert.Error(t, err)
 	assert.Equal(t, model.ExpensesDetail{}, got)
@@ -207,7 +208,7 @@ func TestRepo_DeleteExpensesDetail_Success(t *testing.T) {
 	mk.ExpectCommit()
 
 	r := repository.NewExpensesRepository(db)
-	ok, err := r.DeleteExpensesDetail(testCtx, req.DeleteExpensesDetailById{Id: 1})
+	ok, err := r.DeleteExpensesDetail(testCtx, req.DeleteExpensesDetailById{ID: 1})
 
 	assert.NoError(t, err)
 	assert.True(t, ok)
@@ -223,7 +224,7 @@ func TestRepo_DeleteExpensesDetail_NotFound(t *testing.T) {
 	mk.ExpectRollback()
 
 	r := repository.NewExpensesRepository(db)
-	ok, err := r.DeleteExpensesDetail(testCtx, req.DeleteExpensesDetailById{Id: 999})
+	ok, err := r.DeleteExpensesDetail(testCtx, req.DeleteExpensesDetailById{ID: 999})
 
 	assert.Error(t, err)
 	assert.False(t, ok)

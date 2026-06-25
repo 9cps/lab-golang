@@ -98,10 +98,10 @@ func (r *expensesRepository) GetListMoneyCardDetail(ctx context.Context, req req
 	return details, nil
 }
 
-func (r *expensesRepository) UpdateExpensesDetail(ctx context.Context, req req.UpdateExpensesDetail) (model.ExpensesDetail, error) {
+func (r *expensesRepository) UpdateExpensesDetail(ctx context.Context, req req.ExpensesDetail) (model.ExpensesDetail, error) {
 	var detail model.ExpensesDetail
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.First(&detail, req.Id).Error; err != nil {
+		if err := tx.First(&detail, req.ID).Error; err != nil {
 			slog.ErrorContext(ctx, "UpdateExpensesDetail: load detail failed", "error", err)
 			return err
 		}
@@ -133,7 +133,7 @@ func (r *expensesRepository) UpdateExpensesDetail(ctx context.Context, req req.U
 func (r *expensesRepository) DeleteExpensesDetail(ctx context.Context, req req.DeleteExpensesDetailById) (bool, error) {
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var detail model.ExpensesDetail
-		if err := tx.First(&detail, req.Id).Error; err != nil {
+		if err := tx.First(&detail, req.ID).Error; err != nil {
 			slog.ErrorContext(ctx, "DeleteExpensesDetail: load detail failed", "error", err)
 			return err
 		}

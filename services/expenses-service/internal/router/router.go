@@ -39,12 +39,11 @@ func NewRouter(
 	// Expenses — authentication is handled by the api-gateway
 	expenses := api.Group("/expenses")
 	{
-		expenses.POST("", expensesHandler.CreateExpenses)
 		expenses.GET("", expensesHandler.GetListMoneyCard)
-		expenses.POST("/details", expensesHandler.CreateExpensesDetail)
-		expenses.GET("/details", expensesHandler.GetListMoneyCardDetail)
-		expenses.PUT("/details/:id", expensesHandler.UpdateExpensesDetail)
-		expenses.DELETE("/details/:id", expensesHandler.DeleteExpensesDetail)
+		expenses.PUT("", expensesHandler.CreateExpenses)
+		expenses.POST("/details", expensesHandler.GetListMoneyCardDetail)
+		expenses.PUT("/details", expensesHandler.UpsertExpensesDetail)
+		expenses.DELETE("/details", expensesHandler.DeleteExpensesDetail)
 	}
 
 	return r

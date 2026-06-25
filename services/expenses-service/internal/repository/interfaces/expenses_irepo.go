@@ -12,7 +12,7 @@ type ExpensesRepository interface {
 	InsertExpensesDetail(ctx context.Context, obj model.ExpensesDetail) (model.ExpensesDetail, error)
 	GetListMoneyCard(ctx context.Context) ([]model.Expenses, error)
 	GetListMoneyCardDetail(ctx context.Context, r req.GetExpensesDetailById) ([]model.ExpensesDetail, error)
-	UpdateExpensesDetail(ctx context.Context, r req.UpdateExpensesDetail) (model.ExpensesDetail, error)
+	UpdateExpensesDetail(ctx context.Context, r req.ExpensesDetail) (model.ExpensesDetail, error)
 	DeleteExpensesDetail(ctx context.Context, r req.DeleteExpensesDetailById) (bool, error)
 	CountExpenses(ctx context.Context) (int64, error)
 	DeleteOldestExpenses(ctx context.Context) error
